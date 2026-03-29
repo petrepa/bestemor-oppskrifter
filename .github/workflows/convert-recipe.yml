@@ -43,9 +43,69 @@ jobs:
         if: steps.find-images.outputs.found == 'true'
         run: pip install anthropic
 
-      - name: Convert images and create PRs
+      - name: Convert images to recipes
         if: steps.find-images.outputs.found == 'true'
+        id: convert
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          RESULTS=$(python .github/scripts/convert_recipe.py)
+          echo "recipes=$RESULTS" >> "$GITHUB_OUTPUT"
+
+      - name: Create PRs
+        if: steps.find-images.outputs.found == 'true'
+        env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python .github/scripts/convert_recipe.py
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          RECIPES='${{ steps.convert.outputs.recipes }}'
+          COUNT=$(echo "$RECIPES" | jq length)
+
+          for i in $(seq 0 $((COUNT - 1))); do
+            TITLE=$(echo "$RECIPES" | jq -r ".[$i].title")
+            SLUG=$(echo "$RECIPES" | jq -r ".[$i].slug")
+            IMAGE=$(echo "$RECIPES" | jq -r ".[$i].image")
+            NEW_IMAGE=$(echo "$RECIPES" | jq -r ".[$i].new_image")
+            MD_FILE=$(echo "$RECIPES" | jq -r ".[$i].md_file")
+            BRANCH="recipe/${SLUG}"
+
+            echo "=== Creating PR for: $TITLE ==="
+
+            # Start fresh from main
+            git checkout main
+            git checkout -b "$BRANCH"
+
+            # Stage the renamed image and new markdown file
+            git add "recipes-site/public/skannar/${NEW_IMAGE}" "recipes-site/src/content/oppskrifter/${MD_FILE}"
+            # Stage the removal of the original image if it was renamed
+            if [ "$IMAGE" != "$NEW_IMAGE" ]; then
+              git add "recipes-site/public/skannar/${IMAGE}"
+            fi
+
+            git commit -m "Add recipe: ${TITLE}
+
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+
+            git push origin "$BRANCH"
+
+            gh pr create \
+              --title "Ny oppskrift: ${TITLE}" \
+              --body "$(cat <<EOF
+          ## Ny oppskrift: ${TITLE}
+
+          Automatisk transkribering frå \`${IMAGE}\`.
+
+          Sjekk at:
+          - [ ] Tittelen er riktig
+          - [ ] Ingrediensane stemmer
+          - [ ] Framgangsmåten er komplett
+          - [ ] Kategori og taggar passar
+
+          🤖 Generert med Claude API
+          EOF
+          )"
+
+            echo "PR created for: $TITLE"
+          done
