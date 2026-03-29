@@ -138,6 +138,7 @@ def process_image(client: anthropic.Anthropic, image_path: Path) -> None:
     )
 
     # Write the markdown file
+    OPPSKRIFTER_DIR.mkdir(parents=True, exist_ok=True)
     md_path = OPPSKRIFTER_DIR / f"{slug}.md"
     md_path.write_text(markdown, encoding="utf-8")
     print(f"Created: {md_path.name}")
