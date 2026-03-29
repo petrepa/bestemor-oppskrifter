@@ -9,8 +9,7 @@ original_skann: "skannar/sild-i-form.jpg"
 ## Ingrediensar
 
 - 2 pakkar sild (godtvann sild)
-- 4 paprika (stor sild)
-- ¼ l poteter i skiver
+- 1/2 l poteter i skiver
 - 2 gulerøter i skiver
 - 1 ss. løk eller purre
 - 1 ss. smør
