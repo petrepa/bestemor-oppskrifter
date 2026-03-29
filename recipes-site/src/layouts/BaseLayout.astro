@@ -4,7 +4,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description = 'Ei samling av bestemors kjæraste oppskrifter' } = Astro.props;
+const { title, description = 'Ei samling av handskrivne oppskrifter frå Remøya' } = Astro.props;
 const base = import.meta.env.BASE_URL;
 ---
 
@@ -14,18 +14,19 @@ const base = import.meta.env.BASE_URL;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👵</text></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
-    <title>{title} — Bestemors oppskrifter</title>
+    <title>{title} — Bestemor sine oppskrifter</title>
   </head>
   <body>
     <header class="site-header">
       <nav>
-        <a href={base} class="logo">Bestemors oppskrifter</a>
+        <a href={base} class="logo">Bestemor sine oppskrifter</a>
         <ul class="nav-links">
           <li><a href={`${base}/oppskrifter/`}>Alle oppskrifter</a></li>
           <li><a href={`${base}/kategoriar/`}>Kategoriar</a></li>
@@ -38,7 +39,7 @@ const base = import.meta.env.BASE_URL;
     </main>
 
     <footer>
-      <p class="footer-text">Med kjærleik frå bestemors kjøken</p>
+      <p class="footer-text">Med kjærleik frå bestemor sitt kjøken</p>
     </footer>
   </body>
 </html>

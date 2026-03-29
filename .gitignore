@@ -8,6 +8,9 @@ recipes-site/.astro/
 # Environment
 .env
 
+# Claude worktrees
+.claude/worktrees/
+
 # OS
 .DS_Store
 Thumbs.db
