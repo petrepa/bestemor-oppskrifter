@@ -23,7 +23,6 @@ jobs:
       - name: Find new images
         id: find-images
         run: |
-          # Find image files added in the latest commit
           NEW_IMAGES=$(git diff --name-only --diff-filter=A HEAD~1 HEAD -- 'recipes-site/public/skannar/*' | grep -iE '\.(jpg|jpeg|png|gif|webp|heic)$' || true)
           if [ -z "$NEW_IMAGES" ]; then
             echo "No new images found."
@@ -32,8 +31,6 @@ jobs:
             echo "Found new images:"
             echo "$NEW_IMAGES"
             echo "found=true" >> "$GITHUB_OUTPUT"
-            # Save to file for multi-line support
-            echo "$NEW_IMAGES" > /tmp/new_images.txt
           fi
 
       - name: Setup Python
@@ -46,53 +43,9 @@ jobs:
         if: steps.find-images.outputs.found == 'true'
         run: pip install anthropic
 
-      - name: Convert images to recipes
+      - name: Convert images and create PRs
         if: steps.find-images.outputs.found == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python .github/scripts/convert_recipe.py
-
-      - name: Create pull request
-        if: steps.find-images.outputs.found == 'true'
-        env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          BRANCH="recipe/$(date +%Y%m%d-%H%M%S)"
-          git checkout -b "$BRANCH"
-          git add recipes-site/src/content/oppskrifter/ recipes-site/public/skannar/
-
-          # Check if there are changes to commit
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "$(cat <<'EOF'
-          Add new recipe(s) from scanned images
-
-          Auto-generated from uploaded scans using Claude API.
-
-          Co-Authored-By: Claude <noreply@anthropic.com>
-          EOF
-          )"
-
-          git push origin "$BRANCH"
-
-          gh pr create \
-            --title "Ny oppskrift frå skann" \
-            --body "$(cat <<'EOF'
-          ## Ny oppskrift
-
-          Denne PR-en vart automatisk generert frå opplasta skannar.
-
-          Sjekk at:
-          - [ ] Tittelen er riktig
-          - [ ] Ingrediensane stemmer
-          - [ ] Framgangsmåten er komplett
-          - [ ] Kategori og taggar passar
-
-          🤖 Generert med Claude API
-          EOF
-          )"
+        run: python .github/scripts/convert_recipe.py

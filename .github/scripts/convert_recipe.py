@@ -55,6 +55,10 @@ MEDIA_TYPES = {
 }
 
 
+def run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
+    return subprocess.run(cmd, capture_output=True, text=True, cwd=REPO_ROOT, check=True, **kwargs)
+
+
 def slugify(text: str) -> str:
     text = text.lower().strip()
     text = re.sub(r"[æ]", "ae", text)
@@ -105,7 +109,10 @@ def convert_image(client: anthropic.Anthropic, image_path: Path) -> str:
 
 
 def process_image(client: anthropic.Anthropic, image_path: Path) -> None:
-    print(f"Converting: {image_path.name}")
+    print(f"\n=== Converting: {image_path.name} ===")
+
+    # Start from main for each image
+    run(["git", "checkout", "main"])
 
     markdown = convert_image(client, image_path)
 
@@ -115,22 +122,21 @@ def process_image(client: anthropic.Anthropic, image_path: Path) -> None:
 
     title = extract_title(markdown)
     slug = slugify(title)
+    branch = f"recipe/{slug}"
+
+    # Create a new branch for this recipe
+    run(["git", "checkout", "-b", branch])
 
     # Rename the image file to match the recipe title
     new_image_name = f"{slug}{image_path.suffix.lower()}"
     new_image_path = image_path.parent / new_image_name
 
     if new_image_path != image_path:
-        # Git mv to preserve history
-        subprocess.run(
-            ["git", "mv", str(image_path), str(new_image_path)],
-            cwd=REPO_ROOT, check=True,
-        )
+        run(["git", "mv", str(image_path), str(new_image_path)])
         print(f"Renamed: {image_path.name} -> {new_image_name}")
 
     # Update the original_skann field in markdown
     markdown = markdown.replace("FILENAME", new_image_name)
-    # Also fix if Claude used the original filename
     markdown = re.sub(
         r'original_skann:\s*"skannar/[^"]*"',
         f'original_skann: "skannar/{new_image_name}"',
@@ -142,6 +148,30 @@ def process_image(client: anthropic.Anthropic, image_path: Path) -> None:
     md_path = OPPSKRIFTER_DIR / f"{slug}.md"
     md_path.write_text(markdown, encoding="utf-8")
     print(f"Created: {md_path.name}")
+
+    # Stage, commit, push, and create PR
+    run(["git", "add", str(new_image_path), str(md_path)])
+    run(["git", "config", "user.name", "github-actions[bot]"])
+    run(["git", "config", "user.email", "github-actions[bot]@users.noreply.github.com"])
+    run(["git", "commit", "-m", f"Add recipe: {title}\n\nCo-Authored-By: Claude <noreply@anthropic.com>"])
+    run(["git", "push", "origin", branch])
+
+    # Create PR
+    run([
+        "gh", "pr", "create",
+        "--title", f"Ny oppskrift: {title}",
+        "--body", (
+            f"## Ny oppskrift: {title}\n\n"
+            f"Automatisk transkribering frå `{image_path.name}`.\n\n"
+            "Sjekk at:\n"
+            "- [ ] Tittelen er riktig\n"
+            "- [ ] Ingrediensane stemmer\n"
+            "- [ ] Framgangsmåten er komplett\n"
+            "- [ ] Kategori og taggar passar\n\n"
+            "🤖 Generert med Claude API"
+        ),
+    ])
+    print(f"PR created for: {title}")
 
 
 def main():
@@ -155,7 +185,7 @@ def main():
     for image_path in images:
         process_image(client, image_path)
 
-    print(f"Done! Processed {len(images)} image(s).")
+    print(f"\nDone! Created {len(images)} PR(s).")
 
 
 if __name__ == "__main__":
