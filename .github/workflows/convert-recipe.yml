@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'recipes-site/public/skannar/**'
+  workflow_dispatch:
 
 jobs:
   convert:
