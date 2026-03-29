@@ -15,12 +15,12 @@ original_skann: "skannar/plommesylte.jpg"
 
 ## Framgangsmåte
 
-1. Kok plommer og vatn til du ser du slipp steinane.
+1. Kok plommer i vatn til steinane losnar.
 
-2. Ha i sukker og la det koke litt og begynd å plukke steinane.
+2. Ha i sukker,la det koke litt og begynd å plukke steinane.
 
-3. Når du er lei av å plukke har du i certo og koker den 1-2 min.
+3. Når du er lei av å plukke, har du i certo og koker den 1-2 min.
 
-4. Sylteglass varmast i bakaromn på 100 grader.
+4. Sylteglas varmast i bakaromn på 100 grader.
 
 5. Fyll på varme glas og sett på lokk med det same.
