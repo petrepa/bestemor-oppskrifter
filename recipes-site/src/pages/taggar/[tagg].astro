@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RecipeCard from '../../components/RecipeCard.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const oppskrifter = await getCollection('oppskrifter');
+  const allTags = [...new Set(oppskrifter.flatMap((r) => r.data.tags))];
+  return allTags.map((tag) => ({
+    params: { tagg: tag },
+    props: {
+      tag,
+      recipes: oppskrifter.filter((r) => r.data.tags.includes(tag)),
+    },
+  }));
+}
+
+const { tag, recipes } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title={`Tagg: ${tag}`}>
+  <a href={`${base}/oppskrifter/`} class="back">&larr; Alle oppskrifter</a>
+  <h1>
+    Oppskrifter merka med <span class="tag-highlight">{tag}</span>
+  </h1>
+  <p class="count">
+    {recipes.length}
+    {recipes.length === 1 ? 'oppskrift' : 'oppskrifter'}
+  </p>
+
+  <div class="recipes-grid">
+    {
+      recipes.map((recipe: any) => (
+        <RecipeCard
+          tittel={recipe.data.tittel}
+          slug={recipe.id}
+          kategori={recipe.data.kategori}
+          tags={recipe.data.tags}
+        />
+      ))
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .back {
+    font-size: 0.9rem;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 {
+    margin-bottom: 0.25rem;
+  }
+
+  .tag-highlight {
+    color: var(--color-green);
+  }
+
+  .count {
+    color: var(--color-muted);
+    font-family: var(--font-handwritten);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+
+  .recipes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+</style>

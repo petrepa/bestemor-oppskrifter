@@ -1,0 +1,42 @@
+---
+interface Props {
+  tags: string[];
+}
+
+const { tags } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<div class="tag-list">
+  {
+    tags.map((tag) => (
+      <a href={`${base}/taggar/${tag}/`} class="tag-link">
+        {tag}
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag-link {
+    font-size: 0.85rem;
+    background: rgba(138, 158, 122, 0.15);
+    color: var(--color-green-hover);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    transition:
+      background 0.2s,
+      color 0.2s;
+  }
+
+  .tag-link:hover {
+    background: var(--color-green);
+    color: white;
+  }
+</style>

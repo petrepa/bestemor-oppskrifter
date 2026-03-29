@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Build output
+recipes-site/dist/
+recipes-site/.astro/
+
+# Environment
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc

@@ -1,0 +1,112 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RecipeCard from '../components/RecipeCard.astro';
+import { getCollection } from 'astro:content';
+
+const oppskrifter = await getCollection('oppskrifter');
+const sorted = oppskrifter.sort(
+  (a, b) => new Date(b.data.dato).getTime() - new Date(a.data.dato).getTime()
+);
+---
+
+<BaseLayout title="Heim">
+  <section class="hero">
+    <div class="hero-decoration" aria-hidden="true">
+      <svg width="60" height="60" viewBox="0 0 60 60">
+        <path
+          d="M30 5 C35 15, 50 20, 55 30 C50 40, 35 45, 30 55 C25 45, 10 40, 5 30 C10 20, 25 15, 30 5Z"
+          fill="none"
+          stroke="var(--color-green)"
+          stroke-width="1.5"
+          opacity="0.4"></path>
+      </svg>
+    </div>
+    <h1>Bestemors oppskrifter</h1>
+    <p class="hero-subtitle">
+      Ei kjærleg samling av handskrivne oppskrifter, tekne vare på for framtidige generasjonar.
+    </p>
+    <div id="search" class="search-container"></div>
+  </section>
+
+  <link href={`${import.meta.env.BASE_URL}/pagefind/pagefind-ui.css`} rel="stylesheet" />
+  <script is:inline define:vars={{ base: import.meta.env.BASE_URL }}>
+    window.addEventListener('DOMContentLoaded', () => {
+      const script = document.createElement('script');
+      script.src = base + '/pagefind/pagefind-ui.js';
+      script.onload = () => {
+        new PagefindUI({
+          element: '#search',
+          showSubResults: true,
+          translations: {
+            placeholder: 'Søk i oppskrifter...',
+            zero_results: 'Fann ingen resultat for [SEARCH_TERM]',
+          },
+        });
+      };
+      document.head.appendChild(script);
+    });
+  </script>
+
+  <section class="recipes-section">
+    <h2 class="section-title">Oppskrifter</h2>
+    <div class="recipes-grid">
+      {
+        sorted.map((recipe) => (
+          <RecipeCard
+            tittel={recipe.data.tittel}
+            slug={recipe.id}
+            kategori={recipe.data.kategori}
+            tags={recipe.data.tags}
+          />
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: 3rem 0 2rem;
+    position: relative;
+  }
+
+  .hero-decoration {
+    margin-bottom: 1rem;
+  }
+
+  .hero h1 {
+    font-size: 3rem;
+    color: var(--color-accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-subtitle {
+    font-family: var(--font-handwritten);
+    font-size: 1.4rem;
+    color: var(--color-muted);
+    max-width: 500px;
+    margin: 0 auto 2rem;
+  }
+
+  .search-container {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .section-title {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-card-border);
+  }
+
+  .recipes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .recipes-section {
+    margin-top: 2rem;
+  }
+</style>

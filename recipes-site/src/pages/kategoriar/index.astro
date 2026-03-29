@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const oppskrifter = await getCollection('oppskrifter');
+
+const kategoriMap = new Map<string, number>();
+for (const recipe of oppskrifter) {
+  const kat = recipe.data.kategori;
+  kategoriMap.set(kat, (kategoriMap.get(kat) || 0) + 1);
+}
+
+const kategoriar = [...kategoriMap.entries()].sort((a, b) => a[0].localeCompare(b[0], 'nn'));
+---
+
+<BaseLayout title="Kategoriar">
+  <h1>Kategoriar</h1>
+  <p class="page-intro">Bla gjennom oppskriftene etter kategori.</p>
+
+  <div class="kategori-grid">
+    {
+      kategoriar.map(([kategori, count]) => (
+        <a
+          href={`${import.meta.env.BASE_URL}/kategoriar/${kategori.toLowerCase().replace(/\s+/g, '-')}/`}
+          class="kategori-card"
+        >
+          <h2>{kategori}</h2>
+          <span class="count">
+            {count} {count === 1 ? 'oppskrift' : 'oppskrifter'}
+          </span>
+        </a>
+      ))
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  h1 {
+    margin-bottom: 0.25rem;
+  }
+
+  .page-intro {
+    color: var(--color-muted);
+    margin-bottom: 2rem;
+  }
+
+  .kategori-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .kategori-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-card-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--color-text);
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(61, 43, 31, 0.06);
+  }
+
+  .kategori-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(61, 43, 31, 0.1);
+    color: var(--color-text);
+  }
+
+  .kategori-card h2 {
+    font-size: 1.3rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .count {
+    font-family: var(--font-handwritten);
+    color: var(--color-muted);
+    font-size: 1.1rem;
+  }
+</style>

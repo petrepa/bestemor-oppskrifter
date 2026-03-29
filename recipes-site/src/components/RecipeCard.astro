@@ -1,0 +1,70 @@
+---
+interface Props {
+  tittel: string;
+  slug: string;
+  kategori: string;
+  tags: string[];
+}
+
+const { tittel, slug, kategori, tags } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<a href={`${base}/oppskrifter/${slug}/`} class="recipe-card">
+  <span class="card-kategori">{kategori}</span>
+  <h3 class="card-title">{tittel}</h3>
+  <div class="card-tags">
+    {tags.slice(0, 3).map((tag) => <span class="tag">{tag}</span>)}
+  </div>
+</a>
+
+<style>
+  .recipe-card {
+    display: block;
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-card-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(61, 43, 31, 0.06);
+    text-decoration: none;
+    color: var(--color-text);
+  }
+
+  .recipe-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(61, 43, 31, 0.1);
+    color: var(--color-text);
+  }
+
+  .card-kategori {
+    font-family: var(--font-handwritten);
+    font-size: 1rem;
+    color: var(--color-green);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-text);
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    background: rgba(138, 158, 122, 0.15);
+    color: var(--color-green-hover);
+    padding: 0.15rem 0.6rem;
+    border-radius: 20px;
+  }
+</style>

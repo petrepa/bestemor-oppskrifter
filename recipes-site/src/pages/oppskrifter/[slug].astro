@@ -1,0 +1,149 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TagList from '../../components/TagList.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const oppskrifter = await getCollection('oppskrifter');
+  return oppskrifter.map((recipe) => ({
+    params: { slug: recipe.id },
+    props: { recipe },
+  }));
+}
+
+const { recipe } = Astro.props;
+const { Content } = await render(recipe);
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title={recipe.data.tittel}>
+  <article class="recipe-page">
+    <header class="recipe-header">
+      <a href={`${base}/kategoriar/`} class="breadcrumb-kategori">{recipe.data.kategori}</a>
+      <h1>{recipe.data.tittel}</h1>
+      <TagList tags={recipe.data.tags} />
+    </header>
+
+    <div class="recipe-content">
+      <Content />
+    </div>
+
+    {
+      recipe.data.original_skann && (
+        <div class="original-scan">
+          <a
+            href={`${base}/${recipe.data.original_skann.replace(/^\//, '')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="scan-link"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="m21 15-5-5L5 21" />
+            </svg>
+            Sj&aring; original skann
+          </a>
+        </div>
+      )
+    }
+
+    <div class="back-link">
+      <a href={`${base}/oppskrifter/`}>&larr; Attende til alle oppskrifter</a>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .recipe-page {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .recipe-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--color-card-border);
+  }
+
+  .breadcrumb-kategori {
+    font-family: var(--font-handwritten);
+    font-size: 1.1rem;
+    color: var(--color-green);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .recipe-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-accent);
+  }
+
+  .recipe-content {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-card-border);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(61, 43, 31, 0.06);
+  }
+
+  .recipe-content :global(h2) {
+    font-size: 1.4rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-accent);
+  }
+
+  .recipe-content :global(ul),
+  .recipe-content :global(ol) {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .recipe-content :global(li) {
+    margin-bottom: 0.4rem;
+  }
+
+  .recipe-content :global(p) {
+    margin-bottom: 1rem;
+  }
+
+  .original-scan {
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+
+  .scan-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--color-accent);
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition:
+      background 0.2s,
+      transform 0.2s;
+  }
+
+  .scan-link:hover {
+    background: var(--color-accent-hover);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .back-link {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-card-border);
+  }
+</style>
