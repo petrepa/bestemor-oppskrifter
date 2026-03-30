@@ -183,6 +183,7 @@ def review_transcription(client: anthropic.Anthropic, image_data: str, media_typ
 
 
 def git(args: list[str], **kwargs) -> subprocess.CompletedProcess:
+    kwargs.setdefault("stdout", subprocess.DEVNULL)
     return subprocess.run(["git"] + args, cwd=REPO_ROOT, check=True, **kwargs)
 
 
