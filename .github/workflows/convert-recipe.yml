@@ -6,6 +6,11 @@ on:
     paths:
       - 'recipes-site/public/skannar/**'
   workflow_dispatch:
+    inputs:
+      images:
+        description: 'Comma-separated image filenames to process (e.g. PXL_123.jpg,PXL_456.jpg). Leave empty to auto-detect from last commit.'
+        required: false
+        default: ''
 
 jobs:
   convert:
@@ -23,14 +28,19 @@ jobs:
       - name: Find new images
         id: find-images
         run: |
-          NEW_IMAGES=$(git diff --name-only --diff-filter=A HEAD~1 HEAD -- 'recipes-site/public/skannar/*' | grep -iE '\.(jpg|jpeg|png|gif|webp|heic)$' || true)
-          if [ -z "$NEW_IMAGES" ]; then
-            echo "No new images found."
-            echo "found=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "Found new images:"
-            echo "$NEW_IMAGES"
+          if [ -n "${{ inputs.images }}" ]; then
+            echo "Using manually specified images: ${{ inputs.images }}"
             echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            NEW_IMAGES=$(git diff --name-only --diff-filter=A HEAD~1 HEAD -- 'recipes-site/public/skannar/*' | grep -iE '\.(jpg|jpeg|png|gif|webp|heic)$' || true)
+            if [ -z "$NEW_IMAGES" ]; then
+              echo "No new images found."
+              echo "found=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "Found new images:"
+              echo "$NEW_IMAGES"
+              echo "found=true" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
       - name: Setup Python
@@ -47,6 +57,7 @@ jobs:
         if: steps.find-images.outputs.found == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          IMAGE_NAMES: ${{ inputs.images }}
         run: |
           python .github/scripts/convert_recipe.py > /tmp/recipes.json
 

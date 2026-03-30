@@ -10,6 +10,7 @@ Outputs a JSON array of processed recipes to stdout for the workflow to use.
 import anthropic
 import base64
 import json
+import os
 import re
 import subprocess
 import sys
@@ -108,6 +109,19 @@ def extract_title(markdown: str) -> str:
 
 
 def get_new_images() -> list[Path]:
+    image_names_env = os.environ.get("IMAGE_NAMES", "").strip()
+    if image_names_env:
+        paths = []
+        for name in image_names_env.split(","):
+            name = name.strip()
+            if name:
+                p = SKANNAR_DIR / name
+                if p.suffix.lower() in MEDIA_TYPES and p.exists():
+                    paths.append(p)
+                else:
+                    print(f"Warning: {name} not found or unsupported format, skipping.", file=sys.stderr)
+        return paths
+
     result = subprocess.run(
         ["git", "diff", "--name-only", "--diff-filter=A", "HEAD~1", "HEAD", "--", "recipes-site/public/skannar/*"],
         capture_output=True, text=True, cwd=REPO_ROOT,
