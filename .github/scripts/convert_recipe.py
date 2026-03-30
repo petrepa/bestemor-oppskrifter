@@ -256,6 +256,7 @@ def process_image(client: anthropic.Anthropic, image_path: Path) -> dict:
         "slug": slug,
         "branch": branch,
         "image": image_path.name,
+        "new_image": new_image_name,
         "changes": changes,
     }
 

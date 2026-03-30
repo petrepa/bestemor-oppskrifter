@@ -74,8 +74,10 @@ jobs:
           for i in $(seq 0 $((COUNT - 1))); do
             TITLE=$(echo "$RECIPES" | jq -r ".[$i].title")
             IMAGE=$(echo "$RECIPES" | jq -r ".[$i].image")
+            NEW_IMAGE=$(echo "$RECIPES" | jq -r ".[$i].new_image")
             BRANCH=$(echo "$RECIPES" | jq -r ".[$i].branch")
             CHANGES=$(echo "$RECIPES" | jq -c ".[$i].changes")
+            IMAGE_URL="https://raw.githubusercontent.com/${{ github.repository }}/${BRANCH}/recipes-site/public/skannar/${NEW_IMAGE}"
 
             echo "=== Creating PR for: $TITLE ==="
 
@@ -91,7 +93,7 @@ jobs:
               --title "Ny oppskrift: ${TITLE}" \
               --head "$BRANCH" \
               --base main \
-              --body "$(printf '## Ny oppskrift: %s\n\nAutomatisk transkribering frå `%s`.%s\n### Sjekkliste\n\n- [ ] Tittelen er riktig\n- [ ] Ingrediensane stemmer\n- [ ] Framgangsmåten er komplett\n- [ ] Kategori og taggar passar\n\n🤖 Generert med Claude API' "$TITLE" "$IMAGE" "$CHANGES_SECTION")"
+              --body "$(printf '## Ny oppskrift: %s\n\n![%s](%s)\n\nAutomatisk transkribering frå `%s`.%s\n### Sjekkliste\n\n- [ ] Tittelen er riktig\n- [ ] Ingrediensane stemmer\n- [ ] Framgangsmåten er komplett\n- [ ] Kategori og taggar passar\n\n🤖 Generert med Claude API' "$TITLE" "$TITLE" "$IMAGE_URL" "$IMAGE" "$CHANGES_SECTION")"
 
             echo "PR created for: $TITLE"
           done
