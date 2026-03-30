@@ -59,6 +59,8 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           IMAGE_NAMES: ${{ inputs.images }}
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           python .github/scripts/convert_recipe.py > /tmp/recipes.json
 
       - name: Create PRs
@@ -66,71 +68,30 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
           RECIPES=$(cat /tmp/recipes.json)
           COUNT=$(echo "$RECIPES" | jq length)
 
           for i in $(seq 0 $((COUNT - 1))); do
             TITLE=$(echo "$RECIPES" | jq -r ".[$i].title")
-            SLUG=$(echo "$RECIPES" | jq -r ".[$i].slug")
             IMAGE=$(echo "$RECIPES" | jq -r ".[$i].image")
-            NEW_IMAGE=$(echo "$RECIPES" | jq -r ".[$i].new_image")
-            MD_FILE=$(echo "$RECIPES" | jq -r ".[$i].md_file")
-            CHANGES=$(echo "$RECIPES" | jq -r ".[$i].changes")
-            BRANCH="recipe/${SLUG}"
+            BRANCH=$(echo "$RECIPES" | jq -r ".[$i].branch")
+            CHANGES=$(echo "$RECIPES" | jq -c ".[$i].changes")
 
             echo "=== Creating PR for: $TITLE ==="
 
-            # Build the changes section for the PR body
+            # Build changes section if any
             CHANGES_SECTION=""
             CHANGES_COUNT=$(echo "$CHANGES" | jq length)
             if [ "$CHANGES_COUNT" -gt 0 ]; then
-              CHANGES_SECTION="
-          ### Endringar gjort av AI-korrektur
-
-          Desse antakingane/rettingane vart gjort automatisk:
-
-          "
-              for j in $(seq 0 $((CHANGES_COUNT - 1))); do
-                CHANGE=$(echo "$CHANGES" | jq -r ".[$j]")
-                CHANGES_SECTION="${CHANGES_SECTION}- ${CHANGE}
-          "
-              done
+              CHANGES_LIST=$(echo "$CHANGES" | jq -r '.[] | "- " + .')
+              CHANGES_SECTION="$(printf '\n### Endringar gjort av AI-korrektur\n\nDesse antakingane/rettingane vart gjort automatisk:\n\n%s\n' "$CHANGES_LIST")"
             fi
-
-            # Start fresh from main
-            git checkout main
-            git checkout -b "$BRANCH"
-
-            # Stage the renamed image and new markdown file
-            git add "recipes-site/public/skannar/${NEW_IMAGE}" "recipes-site/src/content/oppskrifter/${MD_FILE}"
-            # Stage the removal of the original image if it was renamed
-            if [ "$IMAGE" != "$NEW_IMAGE" ]; then
-              git add "recipes-site/public/skannar/${IMAGE}"
-            fi
-
-            git commit -m "Add recipe: ${TITLE}
-
-          Co-Authored-By: Claude <noreply@anthropic.com>"
-
-            git push origin "$BRANCH"
 
             gh pr create \
               --title "Ny oppskrift: ${TITLE}" \
-              --body "## Ny oppskrift: ${TITLE}
-
-          Automatisk transkribering frå \`${IMAGE}\`.
-          ${CHANGES_SECTION}
-          ### Sjekkliste
-
-          - [ ] Tittelen er riktig
-          - [ ] Ingrediensane stemmer
-          - [ ] Framgangsmåten er komplett
-          - [ ] Kategori og taggar passar
-
-          🤖 Generert med Claude API"
+              --head "$BRANCH" \
+              --base main \
+              --body "$(printf '## Ny oppskrift: %s\n\nAutomatisk transkribering frå `%s`.%s\n### Sjekkliste\n\n- [ ] Tittelen er riktig\n- [ ] Ingrediensane stemmer\n- [ ] Framgangsmåten er komplett\n- [ ] Kategori og taggar passar\n\n🤖 Generert med Claude API' "$TITLE" "$IMAGE" "$CHANGES_SECTION")"
 
             echo "PR created for: $TITLE"
           done

@@ -182,6 +182,10 @@ def review_transcription(client: anthropic.Anthropic, image_data: str, media_typ
         return {"markdown": markdown, "changes": []}
 
 
+def git(args: list[str], **kwargs) -> subprocess.CompletedProcess:
+    return subprocess.run(["git"] + args, cwd=REPO_ROOT, check=True, **kwargs)
+
+
 def process_image(client: anthropic.Anthropic, image_path: Path) -> dict:
     print(f"Converting: {image_path.name}", file=sys.stderr)
 
@@ -210,16 +214,17 @@ def process_image(client: anthropic.Anthropic, image_path: Path) -> dict:
 
     title = extract_title(markdown)
     slug = slugify(title)
+    branch = f"recipe/{slug}"
 
-    # Rename the image file to match the recipe title
+    # Start a clean branch from main for this recipe
+    git(["checkout", "main"])
+    git(["checkout", "-b", branch])
+
+    # Rename the image to match the recipe slug
     new_image_name = f"{slug}{image_path.suffix.lower()}"
     new_image_path = image_path.parent / new_image_name
-
     if new_image_path != image_path:
-        subprocess.run(
-            ["git", "mv", str(image_path), str(new_image_path)],
-            cwd=REPO_ROOT, check=True,
-        )
+        git(["mv", str(image_path), str(new_image_path)])
         print(f"  Renamed: {image_path.name} -> {new_image_name}", file=sys.stderr)
 
     # Update the original_skann field in markdown
@@ -230,18 +235,26 @@ def process_image(client: anthropic.Anthropic, image_path: Path) -> dict:
         markdown,
     )
 
-    # Write the markdown file
+    # Write and stage the markdown file
     OPPSKRIFTER_DIR.mkdir(parents=True, exist_ok=True)
     md_path = OPPSKRIFTER_DIR / f"{slug}.md"
     md_path.write_text(markdown, encoding="utf-8")
+    git(["add", str(md_path)])
     print(f"  Created: {md_path.name}", file=sys.stderr)
+
+    # Commit and push
+    git(["commit", "-m", f"Add recipe: {title}\n\nCo-Authored-By: Claude <noreply@anthropic.com>"])
+    git(["push", "origin", branch])
+    print(f"  Pushed branch: {branch}", file=sys.stderr)
+
+    # Return to main before processing next image
+    git(["checkout", "main"])
 
     return {
         "title": title,
         "slug": slug,
+        "branch": branch,
         "image": image_path.name,
-        "new_image": new_image_name,
-        "md_file": f"{slug}.md",
         "changes": changes,
     }
 
