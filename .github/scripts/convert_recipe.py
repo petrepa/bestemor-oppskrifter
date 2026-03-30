@@ -1,5 +1,9 @@
 """Convert scanned recipe images to markdown using Claude API.
 
+Two-pass process:
+1. Transcribe the handwritten recipe from the image
+2. Review the transcription for errors, fix them, and document changes
+
 Outputs a JSON array of processed recipes to stdout for the workflow to use.
 """
 
@@ -11,7 +15,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-SYSTEM_PROMPT = """You are an expert at reading handwritten Norwegian recipes and converting them to well-formatted Markdown.
+TRANSCRIBE_PROMPT = """You are an expert at reading handwritten Norwegian recipes and converting them to well-formatted Markdown.
 
 Your task:
 1. Carefully transcribe the handwritten recipe from the provided image(s).
@@ -44,6 +48,34 @@ Available categories:
 - Drikke og saft
 - Sylting og konservering
 - Tradisjonelt og høgtid
+"""
+
+REVIEW_PROMPT = """You are a careful proofreader and recipe expert reviewing a transcription of a handwritten Norwegian recipe.
+
+You will receive:
+1. The original image of the handwritten recipe
+2. A markdown transcription of that recipe
+
+Your job is to review the transcription and fix any issues:
+
+- **Spelling errors**: Fix obvious misspellings in Norwegian (nynorsk)
+- **Ingredients that don't make sense**: If an ingredient seems wrong (e.g. misread handwriting), correct it based on what makes sense for this type of recipe
+- **Quantities that seem off**: If amounts seem unreasonable (e.g. 50 liters of milk), fix them to something sensible
+- **Missing or garbled steps**: If a step in the method is unclear or incomplete, try to make it coherent
+- **General coherence**: Make sure the recipe reads naturally and makes sense as a whole
+
+You MUST respond with a JSON object (no code fences) with exactly two fields:
+{
+  "markdown": "the corrected full markdown content here",
+  "changes": ["list", "of", "changes", "made"]
+}
+
+Each entry in "changes" should be a short description in Norwegian (nynorsk) of what was changed and why, e.g.:
+- "Retta 'mølk' til 'mjølk' (skrivefeil)"
+- "Endra mengde frå '50 liter mjølk' til '5 dl mjølk' (urimeleg mengde)"
+- "Tolka 'grsjk' som 'graslauk' basert på kontekst"
+
+If nothing needs to be changed, return the original markdown unchanged and an empty changes list.
 """
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -88,14 +120,12 @@ def get_new_images() -> list[Path]:
     return paths
 
 
-def convert_image(client: anthropic.Anthropic, image_path: Path) -> str:
-    image_data = base64.standard_b64encode(image_path.read_bytes()).decode("utf-8")
-    media_type = MEDIA_TYPES.get(image_path.suffix.lower(), "image/jpeg")
-
+def transcribe_image(client: anthropic.Anthropic, image_data: str, media_type: str) -> str:
+    """Pass 1: Transcribe the handwritten recipe from the image."""
     response = client.messages.create(
         model="claude-sonnet-4-20250514",
         max_tokens=4096,
-        system=SYSTEM_PROMPT,
+        system=TRANSCRIBE_PROMPT,
         messages=[{
             "role": "user",
             "content": [
@@ -104,18 +134,65 @@ def convert_image(client: anthropic.Anthropic, image_path: Path) -> str:
             ],
         }],
     )
-
     return response.content[0].text
+
+
+def review_transcription(client: anthropic.Anthropic, image_data: str, media_type: str, markdown: str) -> dict:
+    """Pass 2: Review transcription against the original image and fix errors."""
+    response = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=4096,
+        system=REVIEW_PROMPT,
+        messages=[{
+            "role": "user",
+            "content": [
+                {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": image_data}},
+                {"type": "text", "text": f"Here is the transcription to review:\n\n{markdown}"},
+            ],
+        }],
+    )
+
+    raw = response.content[0].text
+    # Strip code fences if present
+    raw = re.sub(r"^```(?:json)?\s*\n", "", raw)
+    raw = re.sub(r"\n```\s*$", "", raw)
+
+    try:
+        result = json.loads(raw)
+        return {
+            "markdown": result.get("markdown", markdown),
+            "changes": result.get("changes", []),
+        }
+    except json.JSONDecodeError:
+        print(f"Warning: Could not parse review response as JSON, using original.", file=sys.stderr)
+        return {"markdown": markdown, "changes": []}
 
 
 def process_image(client: anthropic.Anthropic, image_path: Path) -> dict:
     print(f"Converting: {image_path.name}", file=sys.stderr)
 
-    markdown = convert_image(client, image_path)
+    # Read and encode image once
+    image_data = base64.standard_b64encode(image_path.read_bytes()).decode("utf-8")
+    media_type = MEDIA_TYPES.get(image_path.suffix.lower(), "image/jpeg")
+
+    # Pass 1: Transcribe
+    print(f"  Pass 1: Transcribing...", file=sys.stderr)
+    markdown = transcribe_image(client, image_data, media_type)
 
     # Strip code fences if present
     markdown = re.sub(r"^```\w*\n", "", markdown)
     markdown = re.sub(r"\n```$", "", markdown)
+
+    # Pass 2: Review and fix
+    print(f"  Pass 2: Reviewing...", file=sys.stderr)
+    review = review_transcription(client, image_data, media_type, markdown)
+    markdown = review["markdown"]
+    changes = review["changes"]
+
+    if changes:
+        print(f"  Made {len(changes)} correction(s).", file=sys.stderr)
+    else:
+        print(f"  No corrections needed.", file=sys.stderr)
 
     title = extract_title(markdown)
     slug = slugify(title)
@@ -129,7 +206,7 @@ def process_image(client: anthropic.Anthropic, image_path: Path) -> dict:
             ["git", "mv", str(image_path), str(new_image_path)],
             cwd=REPO_ROOT, check=True,
         )
-        print(f"Renamed: {image_path.name} -> {new_image_name}", file=sys.stderr)
+        print(f"  Renamed: {image_path.name} -> {new_image_name}", file=sys.stderr)
 
     # Update the original_skann field in markdown
     markdown = markdown.replace("FILENAME", new_image_name)
@@ -143,7 +220,7 @@ def process_image(client: anthropic.Anthropic, image_path: Path) -> dict:
     OPPSKRIFTER_DIR.mkdir(parents=True, exist_ok=True)
     md_path = OPPSKRIFTER_DIR / f"{slug}.md"
     md_path.write_text(markdown, encoding="utf-8")
-    print(f"Created: {md_path.name}", file=sys.stderr)
+    print(f"  Created: {md_path.name}", file=sys.stderr)
 
     return {
         "title": title,
@@ -151,6 +228,7 @@ def process_image(client: anthropic.Anthropic, image_path: Path) -> dict:
         "image": image_path.name,
         "new_image": new_image_name,
         "md_file": f"{slug}.md",
+        "changes": changes,
     }
 
 

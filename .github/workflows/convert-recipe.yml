@@ -69,9 +69,27 @@ jobs:
             IMAGE=$(echo "$RECIPES" | jq -r ".[$i].image")
             NEW_IMAGE=$(echo "$RECIPES" | jq -r ".[$i].new_image")
             MD_FILE=$(echo "$RECIPES" | jq -r ".[$i].md_file")
+            CHANGES=$(echo "$RECIPES" | jq -r ".[$i].changes")
             BRANCH="recipe/${SLUG}"
 
             echo "=== Creating PR for: $TITLE ==="
+
+            # Build the changes section for the PR body
+            CHANGES_SECTION=""
+            CHANGES_COUNT=$(echo "$CHANGES" | jq length)
+            if [ "$CHANGES_COUNT" -gt 0 ]; then
+              CHANGES_SECTION="
+          ### Endringar gjort av AI-korrektur
+
+          Desse antakingane/rettingane vart gjort automatisk:
+
+          "
+              for j in $(seq 0 $((CHANGES_COUNT - 1))); do
+                CHANGE=$(echo "$CHANGES" | jq -r ".[$j]")
+                CHANGES_SECTION="${CHANGES_SECTION}- ${CHANGE}
+          "
+              done
+            fi
 
             # Start fresh from main
             git checkout main
@@ -92,20 +110,18 @@ jobs:
 
             gh pr create \
               --title "Ny oppskrift: ${TITLE}" \
-              --body "$(cat <<EOF
-          ## Ny oppskrift: ${TITLE}
+              --body "## Ny oppskrift: ${TITLE}
 
           Automatisk transkribering frå \`${IMAGE}\`.
+          ${CHANGES_SECTION}
+          ### Sjekkliste
 
-          Sjekk at:
           - [ ] Tittelen er riktig
           - [ ] Ingrediensane stemmer
           - [ ] Framgangsmåten er komplett
           - [ ] Kategori og taggar passar
 
-          🤖 Generert med Claude API
-          EOF
-          )"
+          🤖 Generert med Claude API"
 
             echo "PR created for: $TITLE"
           done
