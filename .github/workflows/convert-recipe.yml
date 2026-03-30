@@ -45,12 +45,10 @@ jobs:
 
       - name: Convert images to recipes
         if: steps.find-images.outputs.found == 'true'
-        id: convert
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          RESULTS=$(python .github/scripts/convert_recipe.py)
-          echo "recipes=$RESULTS" >> "$GITHUB_OUTPUT"
+          python .github/scripts/convert_recipe.py > /tmp/recipes.json
 
       - name: Create PRs
         if: steps.find-images.outputs.found == 'true'
@@ -60,7 +58,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          RECIPES='${{ steps.convert.outputs.recipes }}'
+          RECIPES=$(cat /tmp/recipes.json)
           COUNT=$(echo "$RECIPES" | jq length)
 
           for i in $(seq 0 $((COUNT - 1))); do
