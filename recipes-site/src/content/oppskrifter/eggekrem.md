@@ -8,17 +8,15 @@ original_skann: "skannar/eggekrem.jpg"
 
 ## Ingrediensar
 
-- 3 dl mjølk (ljos søt fløte)
-- 1 eggeplomme
+- 3 dl mjølk
+- 1 ss sukker
+- 1 ss potetmjøl
+- 2 egg
 - 1 ts vanille
 
 ## Framgangsmåte
 
-1. Alt viskas laktert saman i gryten
-2. Vispar til det kokar. Gryten takast av varmen. Eggekremmen atterkalast.
-
-## Mandelmasse
-
-- 75 g mandlar
-- 100 g sukker  
-- 1 eggekvinne
+1. Visp alt saman i gryta.
+2. Visp til det kokar.
+3. Gryten takast av varmen.
+4. Avkjøl
