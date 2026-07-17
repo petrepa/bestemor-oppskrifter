@@ -11,6 +11,11 @@ on:
         description: 'Comma-separated image filenames to (re)process (e.g. PXL_123.jpg,PXL_456.jpg). Leave empty to auto-detect from last commit.'
         required: false
         default: ''
+      fix_rotation:
+        description: 'Instead of ingesting: check ALL existing scans and rotate the ones whose handwriting is sideways.'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   ingest:
@@ -28,7 +33,10 @@ jobs:
       - name: Find new images
         id: find-images
         run: |
-          if [ -n "${{ inputs.images }}" ]; then
+          if [ "${{ inputs.fix_rotation }}" = "true" ]; then
+            echo "Rotation-repair mode: checking all existing scans."
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          elif [ -n "${{ inputs.images }}" ]; then
             echo "Using manually specified images: ${{ inputs.images }}"
             echo "found=true" >> "$GITHUB_OUTPUT"
           else
@@ -61,7 +69,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          python .github/scripts/convert_recipe.py
+          if [ "${{ inputs.fix_rotation }}" = "true" ]; then
+            python .github/scripts/convert_recipe.py --fix-rotation
+          else
+            python .github/scripts/convert_recipe.py
+          fi
           git push origin HEAD:main
 
       - name: Trigger deploy

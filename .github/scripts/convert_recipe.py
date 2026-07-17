@@ -49,6 +49,7 @@ From the image, produce:
 2. kategori: the single best-fitting category from this list: {", ".join(CATEGORIES)}.
 3. tags: 3-8 short lowercase Nynorsk keywords someone might search for — the dish name, the main ingredients, dialect or alternative names, and closely related dishes (e.g. for lefse: "lefse", "potet", "mjol", "flatbraud", "baking").
 4. transkripsjon: a rough, best-effort plain reading of everything written on the scan (ingredients and method). Expand shorthand and dialect into full searchable words, and guess liberally at unclear handwriting rather than stalling. Mark genuinely illegible fragments with [ulesleg]. Because this text is only used for search, err on the side of including more searchable words.
+5. rotasjon: how many degrees CLOCKWISE the image must be rotated so the handwriting reads upright for a human. 0 if it is already upright.
 
 Write everything in Nynorsk."""
 
@@ -59,8 +60,22 @@ RESPONSE_SCHEMA = {
         "kategori": {"type": "string", "enum": CATEGORIES},
         "tags": {"type": "array", "items": {"type": "string"}},
         "transkripsjon": {"type": "string"},
+        "rotasjon": {"type": "integer", "enum": [0, 90, 180, 270]},
     },
-    "required": ["tittel", "kategori", "tags", "transkripsjon"],
+    "required": ["tittel", "kategori", "tags", "transkripsjon", "rotasjon"],
+    "additionalProperties": False,
+}
+
+ROTATION_PROMPT = (
+    "This is a scanned handwritten recipe. How many degrees CLOCKWISE must the "
+    "image be rotated so the handwriting reads upright for a human? "
+    "Answer 0 if it is already upright."
+)
+
+ROTATION_SCHEMA = {
+    "type": "object",
+    "properties": {"rotasjon": {"type": "integer", "enum": [0, 90, 180, 270]}},
+    "required": ["rotasjon"],
     "additionalProperties": False,
 }
 
@@ -129,6 +144,37 @@ def load_upright(image_path: Path) -> tuple[bytes, bool]:
     except Exception as exc:  # never let orientation handling block ingestion
         print(f"  Could not normalise orientation for {image_path.name}: {exc}", file=sys.stderr)
         return raw, False
+
+
+def rotate_bytes(image_bytes: bytes, degrees_cw: int) -> bytes:
+    """Rotate image pixels clockwise by 90/180/270 degrees and re-encode."""
+    from PIL import Image
+
+    img = Image.open(io.BytesIO(image_bytes))
+    fmt = (img.format or "JPEG").upper()
+    rotated = img.rotate(-degrees_cw, expand=True)  # PIL rotates CCW; negate for CW
+    buf = io.BytesIO()
+    save_kwargs = {"quality": 95} if fmt in ("JPEG", "WEBP") else {}
+    rotated.save(buf, format=fmt, **save_kwargs)
+    return buf.getvalue()
+
+
+def detect_rotation(client: anthropic.Anthropic, image_data: str, media_type: str) -> int:
+    """Ask Claude how many degrees clockwise a scan must turn to read upright."""
+    response = client.messages.create(
+        model=MODEL,
+        max_tokens=1024,
+        output_config={"format": {"type": "json_schema", "schema": ROTATION_SCHEMA}},
+        messages=[{
+            "role": "user",
+            "content": [
+                {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": image_data}},
+                {"type": "text", "text": ROTATION_PROMPT},
+            ],
+        }],
+    )
+    text = next(b.text for b in response.content if b.type == "text")
+    return json.loads(text)["rotasjon"]
 
 
 def get_new_images() -> list[Path]:
@@ -210,6 +256,17 @@ def process_image(client: anthropic.Anthropic, image_path: Path, taken: set[str]
         print(f"  Failed to classify {image_path.name}: {exc}", file=sys.stderr)
         return False
 
+    # Physically rotate photos taken sideways (no EXIF flag to go on — Claude
+    # reports the rotation from the direction of the handwriting).
+    degrees = result.get("rotasjon", 0)
+    if degrees:
+        try:
+            image_bytes = rotate_bytes(image_bytes, degrees)
+            rotated = True
+            print(f"  Rotating {degrees} deg clockwise (handwriting was sideways)", file=sys.stderr)
+        except Exception as exc:
+            print(f"  Could not rotate {image_path.name}: {exc}", file=sys.stderr)
+
     suffix = image_path.suffix.lower()
     slug = unique_slug(slugify(result["tittel"]), taken, suffix)
     new_image_name = f"{slug}{suffix}"
@@ -242,10 +299,56 @@ def process_image(client: anthropic.Anthropic, image_path: Path, taken: set[str]
     return True
 
 
+def fix_rotation(client: anthropic.Anthropic, dry_run: bool) -> None:
+    """Repair pass: check every scan in the archive and rotate the sideways ones.
+
+    Uses the direction of the handwriting (judged by Claude) since phone photos
+    of sideways paper carry no EXIF orientation to correct from.
+    """
+    images = sorted(p for p in SKANNAR_DIR.iterdir() if p.suffix.lower() in MEDIA_TYPES)
+    print(f"Checking rotation of {len(images)} scan(s)...", file=sys.stderr)
+    fixed = 0
+    for p in images:
+        raw, exif_rotated = load_upright(p)
+        data = base64.standard_b64encode(raw).decode("utf-8")
+        try:
+            degrees = detect_rotation(client, data, MEDIA_TYPES[p.suffix.lower()])
+        except Exception as exc:
+            print(f"  Failed rotation check for {p.name}: {exc}", file=sys.stderr)
+            continue
+        if degrees == 0 and not exif_rotated:
+            print(f"  OK: {p.name}", file=sys.stderr)
+            continue
+        print(f"  Rotating {p.name}: {degrees} deg clockwise", file=sys.stderr)
+        if dry_run:
+            fixed += 1
+            continue
+        if degrees:
+            raw = rotate_bytes(raw, degrees)
+        p.write_bytes(raw)
+        git(["add", str(p)])
+        fixed += 1
+
+    if dry_run:
+        print(f"Dry run: {fixed} scan(s) would be rotated.", file=sys.stderr)
+        return
+    if fixed == 0:
+        print("All scans already upright; nothing to commit.", file=sys.stderr)
+        return
+    git(["commit", "-m", f"Fix rotation of {fixed} scan(s)\n\nCo-Authored-By: Claude <noreply@anthropic.com>"])
+    print(f"Committed rotation fixes for {fixed} scan(s).", file=sys.stderr)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="Print results without touching git or files.")
+    parser.add_argument("--fix-rotation", action="store_true",
+                        help="Check every existing scan and rotate the ones whose handwriting is sideways.")
     args = parser.parse_args()
+
+    if args.fix_rotation:
+        fix_rotation(anthropic.Anthropic(), args.dry_run)
+        return
 
     images = get_new_images()
     if not images:
