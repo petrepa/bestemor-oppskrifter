@@ -1,21 +1,24 @@
 # Bestemors oppskrifter
 
-Ei kjærleg samling av bestemors handskrivne oppskrifter, tekne vare på digitalt for framtidige generasjonar.
+Eit søkbart arkiv av bestemors handskrivne oppskrifter, tekne vare på digitalt for framtidige generasjonar.
 
 ## Oversikt
 
-- **Nettstad** (`recipes-site/`) — Ein statisk nettstad bygd med [Astro](https://astro.build), hostet på GitHub Pages
-- **Automatisk konvertering** — Ein GitHub Action som brukar Claude API til å konvertere skannar av handskrivne oppskrifter til Markdown
+Sjølve skanna oppskrifta er det du ser og les på nettstaden — det er «fasiten». Målet er å gjere skannane lette å finne att: søk etter t.d. «lefse», så kjem alle lefse-skannane opp, og du trykkjer deg inn til ei fin visning av originalen.
+
+- **Nettstad** (`recipes-site/`) — Ein statisk nettstad bygd med [Astro](https://astro.build), hosta på GitHub Pages, med [Pagefind](https://pagefind.app)-søk
+- **Automatisk indeksering** — Ein GitHub Action som brukar Claude API til å lese ut tittel, kategori, taggar og ei grov transkribering frå kvar skann, slik at arkivet blir søkbart
 
 ## Leggje til ei oppskrift frå skann
 
-Den enklaste måten å digitalisere ei oppskrift:
-
-1. Last opp eit bilete av den handskrivne oppskrifta til `recipes-site/public/skannar/` (via GitHub-nettsida eller git push)
+1. Last opp eit bilete av den handskrivne oppskrifta til `recipes-site/public/skannar/` (via GitHub-nettsida eller git push til `main`)
 2. Ein GitHub Action køyrer automatisk og brukar Claude API til å:
-   - Transkribere og konvertere oppskrifta til ei `.md`-fil
-   - Gje biletefila eit nytt namn basert på oppskrifttittelen
-3. Det vert oppretta ein **pull request** som du kan gå gjennom og godkjenne
+   - Lese ut tittel, kategori og søkjetaggar
+   - Lage ei grov transkribering som berre blir brukt til søk (treng ikkje vere korrekt — det er skannen som gjeld)
+   - Gje biletefila eit nytt namn basert på tittelen og lage ei `.md`-fil
+3. Endringa blir **committa rett til `main`** og nettstaden byggjast på nytt — ingen manuell godkjenning trengst
+
+Vil du køyre ei skann på nytt, bruk **Actions → Ingest recipe scan → Run workflow** og oppgje filnamnet/-a.
 
 ### Oppsett av automatisk konvertering
 
@@ -30,10 +33,10 @@ Sjå [GUIDE.md](GUIDE.md) for ei detaljert steg-for-steg-rettleiing, eller bruk 
 
 **Kort oppsummert:**
 
-1. Lag ei ny `.md`-fil i `recipes-site/src/content/oppskrifter/`
-2. Legg til frontmatter med tittel, tags, kategori og dato
-3. Skriv ingrediensar og framgangsmåte i Markdown
-4. (Valfritt) Legg originalskann i `recipes-site/public/skannar/`
+1. Legg originalskannen i `recipes-site/public/skannar/`
+2. Lag ei ny `.md`-fil i `recipes-site/src/content/oppskrifter/`
+3. Legg til frontmatter med tittel, tags, kategori, dato og `original_skann`
+4. Skriv ei grov transkribering i brødteksten (til søk)
 5. Push til `main`-branchen — nettstaden byggjast og deployast automatisk
 
 ## Oppsett og utvikling

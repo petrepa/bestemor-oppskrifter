@@ -14,6 +14,7 @@ export async function getStaticPaths() {
 const { recipe } = Astro.props;
 const { Content } = await render(recipe);
 const base = import.meta.env.BASE_URL;
+const scanUrl = `${base}/${recipe.data.original_skann.replace(/^\//, '')}`;
 ---
 
 <BaseLayout title={recipe.data.tittel}>
@@ -24,53 +25,64 @@ const base = import.meta.env.BASE_URL;
       <TagList tags={recipe.data.tags} />
     </header>
 
-    <div class="recipe-content">
-      <Content />
-    </div>
+    <figure class="scan">
+      <img
+        src={scanUrl}
+        alt={`Skannet oppskrift: ${recipe.data.tittel}`}
+        loading="lazy"
+        class="scan-image"
+        data-pagefind-meta="image[src], image_alt[alt]"
+      />
+      <figcaption>Trykk på biletet for å sjå det i full storleik</figcaption>
+    </figure>
 
-    {
-      recipe.data.original_skann && (
-        <div class="original-scan">
-          <a
-            href={`${base}/${recipe.data.original_skann.replace(/^\//, '')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="scan-link"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <path d="m21 15-5-5L5 21" />
-            </svg>
-            Sj&aring; original skann
-          </a>
-        </div>
-      )
-    }
+    <details class="transcription">
+      <summary>Automatisk avlesing (kan innehalde feil)</summary>
+      <div class="transcription-body">
+        <Content />
+      </div>
+    </details>
 
     <div class="back-link">
       <a href={`${base}/oppskrifter/`}>&larr; Tilbake til alle oppskrifter</a>
     </div>
   </article>
+
+  <div id="lightbox" class="lightbox" hidden>
+    <img src={scanUrl} alt={`Skannet oppskrift: ${recipe.data.tittel}`} />
+  </div>
+
+  <script is:inline>
+    (() => {
+      const img = document.querySelector('.scan-image');
+      const lightbox = document.getElementById('lightbox');
+      if (!img || !lightbox) return;
+      const open = () => {
+        lightbox.hidden = false;
+        document.body.style.overflow = 'hidden';
+      };
+      const close = () => {
+        lightbox.hidden = true;
+        document.body.style.overflow = '';
+      };
+      img.addEventListener('click', open);
+      lightbox.addEventListener('click', close);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !lightbox.hidden) close();
+      });
+    })();
+  </script>
 </BaseLayout>
 
 <style>
   .recipe-page {
-    max-width: 700px;
+    max-width: 800px;
     margin: 0 auto;
   }
 
   .recipe-header {
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 2px solid var(--color-card-border);
+    margin-bottom: 1.5rem;
+    text-align: center;
   }
 
   .breadcrumb-kategori {
@@ -87,63 +99,85 @@ const base = import.meta.env.BASE_URL;
     color: var(--color-accent);
   }
 
-  .recipe-content {
-    background: var(--color-card-bg);
-    border: 1px solid var(--color-card-border);
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 2px 8px rgba(61, 43, 31, 0.06);
+  .recipe-header :global(.tag-list) {
+    justify-content: center;
   }
 
-  .recipe-content :global(h2) {
-    font-size: 1.4rem;
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
-    color: var(--color-accent);
-  }
-
-  .recipe-content :global(ul),
-  .recipe-content :global(ol) {
-    padding-left: 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .recipe-content :global(li) {
-    margin-bottom: 0.4rem;
-  }
-
-  .recipe-content :global(p) {
-    margin-bottom: 1rem;
-  }
-
-  .original-scan {
-    margin-top: 1.5rem;
+  .scan {
+    margin: 0 0 1.5rem;
     text-align: center;
   }
 
-  .scan-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--color-accent);
-    color: white;
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition:
-      background 0.2s,
-      transform 0.2s;
+  .scan-image {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--color-card-border);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(61, 43, 31, 0.12);
+    cursor: zoom-in;
+    background: var(--color-card-bg);
   }
 
-  .scan-link:hover {
-    background: var(--color-accent-hover);
-    color: white;
-    transform: translateY(-1px);
+  .scan figcaption {
+    margin-top: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+  }
+
+  .transcription {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-card-border);
+    border-radius: 12px;
+    padding: 0.5rem 1.25rem;
+  }
+
+  .transcription summary {
+    cursor: pointer;
+    font-family: var(--font-handwritten);
+    font-size: 1.15rem;
+    color: var(--color-green-hover);
+    padding: 0.5rem 0;
+  }
+
+  .transcription-body {
+    padding-bottom: 1rem;
+    color: var(--color-muted);
+  }
+
+  .transcription-body :global(h2) {
+    font-size: 1.2rem;
+    margin: 1rem 0 0.5rem;
+    color: var(--color-accent);
+  }
+
+  .transcription-body :global(ul),
+  .transcription-body :global(ol) {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   .back-link {
     margin-top: 2rem;
     padding-top: 1rem;
     border-top: 1px solid var(--color-card-border);
+  }
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 20, 12, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    z-index: 100;
+    cursor: zoom-out;
+  }
+
+  .lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
   }
 </style>

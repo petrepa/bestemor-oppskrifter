@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import RecipeCard from '../../components/RecipeCard.astro';
+import Search from '../../components/Search.astro';
 import { getCollection } from 'astro:content';
 
 const oppskrifter = await getCollection('oppskrifter');
@@ -13,7 +14,11 @@ const allTags = [...new Set(oppskrifter.flatMap((r) => r.data.tags))].sort();
 
 <BaseLayout title="Alle oppskrifter">
   <h1>Alle oppskrifter</h1>
-  <p class="page-intro">Her finn du alle oppskriftene i samlinga.</p>
+  <p class="page-intro">Her finn du alle skanna oppskriftene i arkivet. Søk, eller bla gjennom taggane.</p>
+
+  <div class="search-wrap">
+    <Search />
+  </div>
 
   <div class="filter-tags">
     {
@@ -33,6 +38,7 @@ const allTags = [...new Set(oppskrifter.flatMap((r) => r.data.tags))].sort();
           slug={recipe.id}
           kategori={recipe.data.kategori}
           tags={recipe.data.tags}
+          original_skann={recipe.data.original_skann}
         />
       ))
     }
@@ -47,6 +53,10 @@ const allTags = [...new Set(oppskrifter.flatMap((r) => r.data.tags))].sort();
   .page-intro {
     color: var(--color-muted);
     margin-bottom: 1.5rem;
+  }
+
+  .search-wrap {
+    margin-bottom: 2rem;
   }
 
   .filter-tags {

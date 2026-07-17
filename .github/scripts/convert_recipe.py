@@ -1,83 +1,67 @@
-"""Convert scanned recipe images to markdown using Claude API.
+"""Extract searchable metadata from scanned recipe images using the Claude API.
 
-Two-pass process:
-1. Transcribe the handwritten recipe from the image
-2. Review the transcription for errors, fix them, and document changes
+Single pass per scan: classify (title, category, tags) and produce a rough
+transcription used only for search. The original scanned image is what readers
+see on the site and is the authoritative recipe — the transcription is search
+fodder and does NOT need to be accurate.
 
-Outputs a JSON array of processed recipes to stdout for the workflow to use.
+For each new scan the script renames the image to a slug, writes a markdown file
+into the Astro content collection, and stages both. All new recipes are committed
+once, directly to main (no per-recipe branches or PRs). The workflow pushes and
+triggers a deploy.
+
+Use --dry-run to print the extracted metadata and intended markdown for one or
+more images without touching git or the filesystem.
 """
 
 import anthropic
+import argparse
 import base64
 import json
 import os
 import re
 import subprocess
 import sys
+from datetime import date
 from pathlib import Path
 
-TRANSCRIBE_PROMPT = """You are an expert at reading handwritten Norwegian recipes and converting them to well-formatted Markdown.
+CATEGORIES = [
+    "Bakverk",
+    "Middag",
+    "Supper og gryter",
+    "Fisk og sjømat",
+    "Dessert",
+    "Frukost",
+    "Drikke og saft",
+    "Sylting og konservering",
+    "Tradisjonelt og høgtid",
+]
 
-Your task:
-1. Carefully transcribe the handwritten recipe from the provided image(s).
-2. Convert it to Markdown using the exact frontmatter format shown below.
-3. Use Nynorsk (nynorsk) throughout. If the original is in Bokmål or dialect, translate to Nynorsk but keep the spirit of the original.
-4. Guess appropriate tags and category based on the content.
-5. Structure ingredients as a bullet list under "## Ingrediensar"
-6. Structure the method as numbered steps under "## Framgangsmåte"
-7. If something is illegible, mark it with [ulesleg]
-8. Return ONLY the Markdown content, nothing else. No code fences.
+MODEL = "claude-opus-4-8"
 
-Frontmatter format:
----
-tittel: "Recipe title in Nynorsk"
-tags: ["tag1", "tag2"]
-kategori: "Category"
-dato: YYYY-MM-DD (use today's date)
-original_skann: "skannar/FILENAME"
----
+SYSTEM_PROMPT = f"""You are an archivist digitising a grandmother's handwritten Norwegian recipes so they can be searched in an online archive.
 
-The original_skann field should use the FILENAME placeholder — it will be replaced with the actual filename.
+The scanned image is what readers will see and is the authoritative recipe — you are NOT producing a clean, corrected recipe. Your only job is to make each scan findable through search. Broad recall matters; accuracy does not. Transcription errors are fine because the transcription is never shown as the recipe.
 
-Available categories:
-- Bakverk
-- Middag
-- Supper og gryter
-- Fisk og sjømat
-- Dessert
-- Frukost
-- Drikke og saft
-- Sylting og konservering
-- Tradisjonelt og høgtid
-"""
+From the image, produce:
+1. tittel: a short title in Nynorsk naming the dish. Guess if it is unclear.
+2. kategori: the single best-fitting category from this list: {", ".join(CATEGORIES)}.
+3. tags: 3-8 short lowercase Nynorsk keywords someone might search for — the dish name, the main ingredients, dialect or alternative names, and closely related dishes (e.g. for lefse: "lefse", "potet", "mjol", "flatbraud", "baking").
+4. transkripsjon: a rough, best-effort plain reading of everything written on the scan (ingredients and method). Expand shorthand and dialect into full searchable words, and guess liberally at unclear handwriting rather than stalling. Mark genuinely illegible fragments with [ulesleg]. Because this text is only used for search, err on the side of including more searchable words.
 
-REVIEW_PROMPT = """You are a careful proofreader and recipe expert reviewing a transcription of a handwritten Norwegian recipe.
+Write everything in Nynorsk."""
 
-You will receive:
-1. The original image of the handwritten recipe
-2. A markdown transcription of that recipe
-
-Your job is to review the transcription and fix any issues:
-
-- **Spelling errors**: Fix obvious misspellings in Norwegian (nynorsk)
-- **Ingredients that don't make sense**: If an ingredient seems wrong (e.g. misread handwriting), correct it based on what makes sense for this type of recipe
-- **Quantities that seem off**: If amounts seem unreasonable (e.g. 50 liters of milk), fix them to something sensible
-- **Missing or garbled steps**: If a step in the method is unclear or incomplete, try to make it coherent
-- **General coherence**: Make sure the recipe reads naturally and makes sense as a whole
-
-You MUST respond with a JSON object (no code fences) with exactly two fields:
-{
-  "markdown": "the corrected full markdown content here",
-  "changes": ["list", "of", "changes", "made"]
+RESPONSE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "tittel": {"type": "string"},
+        "kategori": {"type": "string", "enum": CATEGORIES},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "transkripsjon": {"type": "string"},
+    },
+    "required": ["tittel", "kategori", "tags", "transkripsjon"],
+    "additionalProperties": False,
 }
-
-Each entry in "changes" should be a short description in Norwegian (nynorsk) of what was changed and why, e.g.:
-- "Retta 'mølk' til 'mjølk' (skrivefeil)"
-- "Endra mengde frå '50 liter mjølk' til '5 dl mjølk' (urimeleg mengde)"
-- "Tolka 'grsjk' som 'graslauk' basert på kontekst"
-
-If nothing needs to be changed, return the original markdown unchanged and an empty changes list.
-"""
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SKANNAR_DIR = REPO_ROOT / "recipes-site" / "public" / "skannar"
@@ -100,12 +84,22 @@ def slugify(text: str) -> str:
     text = re.sub(r"[^a-z0-9\s-]", "", text)
     text = re.sub(r"[\s]+", "-", text)
     text = re.sub(r"-+", "-", text)
-    return text.strip("-")
+    return text.strip("-") or "oppskrift"
 
 
-def extract_title(markdown: str) -> str:
-    match = re.search(r'tittel:\s*"(.+?)"', markdown)
-    return match.group(1) if match else "oppskrift"
+def unique_slug(base: str, taken: set[str], suffix: str) -> str:
+    """Return a slug not already used as <slug>.md or <slug><suffix> on disk or in this batch."""
+    slug = base
+    n = 2
+    while (
+        slug in taken
+        or (OPPSKRIFTER_DIR / f"{slug}.md").exists()
+        or (SKANNAR_DIR / f"{slug}{suffix}").exists()
+    ):
+        slug = f"{base}-{n}"
+        n += 1
+    taken.add(slug)
+    return slug
 
 
 def get_new_images() -> list[Path]:
@@ -134,52 +128,40 @@ def get_new_images() -> list[Path]:
     return paths
 
 
-def transcribe_image(client: anthropic.Anthropic, image_data: str, media_type: str) -> str:
-    """Pass 1: Transcribe the handwritten recipe from the image."""
+def classify_image(client: anthropic.Anthropic, image_data: str, media_type: str) -> dict:
+    """Single pass: extract search metadata + a rough transcription as JSON."""
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=4096,
-        system=TRANSCRIBE_PROMPT,
+        model=MODEL,
+        max_tokens=8192,
+        system=SYSTEM_PROMPT,
+        output_config={"format": {"type": "json_schema", "schema": RESPONSE_SCHEMA}},
         messages=[{
             "role": "user",
             "content": [
                 {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": image_data}},
-                {"type": "text", "text": "Please transcribe and convert this handwritten recipe to Markdown."},
+                {"type": "text", "text": "Extract search metadata and a rough transcription from this scanned recipe."},
             ],
         }],
     )
-    return response.content[0].text
+    text = next(b.text for b in response.content if b.type == "text")
+    return json.loads(text)
 
 
-def review_transcription(client: anthropic.Anthropic, image_data: str, media_type: str, markdown: str) -> dict:
-    """Pass 2: Review transcription against the original image and fix errors."""
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=4096,
-        system=REVIEW_PROMPT,
-        messages=[{
-            "role": "user",
-            "content": [
-                {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": image_data}},
-                {"type": "text", "text": f"Here is the transcription to review:\n\n{markdown}"},
-            ],
-        }],
+def build_markdown(result: dict, image_name: str) -> str:
+    def q(s: str) -> str:
+        return s.replace('"', "'").strip()
+
+    tags = ", ".join(f'"{q(t)}"' for t in result["tags"])
+    return (
+        "---\n"
+        f'tittel: "{q(result["tittel"])}"\n'
+        f"tags: [{tags}]\n"
+        f'kategori: "{q(result["kategori"])}"\n'
+        f"dato: {date.today().isoformat()}\n"
+        f'original_skann: "skannar/{image_name}"\n'
+        "---\n\n"
+        f"{result['transkripsjon'].strip()}\n"
     )
-
-    raw = response.content[0].text
-    # Strip code fences if present
-    raw = re.sub(r"^```(?:json)?\s*\n", "", raw)
-    raw = re.sub(r"\n```\s*$", "", raw)
-
-    try:
-        result = json.loads(raw)
-        return {
-            "markdown": result.get("markdown", markdown),
-            "changes": result.get("changes", []),
-        }
-    except json.JSONDecodeError:
-        print(f"Warning: Could not parse review response as JSON, using original.", file=sys.stderr)
-        return {"markdown": markdown, "changes": []}
 
 
 def git(args: list[str], **kwargs) -> subprocess.CompletedProcess:
@@ -187,96 +169,69 @@ def git(args: list[str], **kwargs) -> subprocess.CompletedProcess:
     return subprocess.run(["git"] + args, cwd=REPO_ROOT, check=True, **kwargs)
 
 
-def process_image(client: anthropic.Anthropic, image_path: Path) -> dict:
-    print(f"Converting: {image_path.name}", file=sys.stderr)
-
-    # Read and encode image once
+def process_image(client: anthropic.Anthropic, image_path: Path, taken: set[str], dry_run: bool) -> bool:
+    print(f"Processing: {image_path.name}", file=sys.stderr)
     image_data = base64.standard_b64encode(image_path.read_bytes()).decode("utf-8")
     media_type = MEDIA_TYPES.get(image_path.suffix.lower(), "image/jpeg")
 
-    # Pass 1: Transcribe
-    print(f"  Pass 1: Transcribing...", file=sys.stderr)
-    markdown = transcribe_image(client, image_data, media_type)
+    try:
+        result = classify_image(client, image_data, media_type)
+    except Exception as exc:  # keep one bad scan from killing the whole batch
+        print(f"  Failed to classify {image_path.name}: {exc}", file=sys.stderr)
+        return False
 
-    # Strip code fences if present
-    markdown = re.sub(r"^```\w*\n", "", markdown)
-    markdown = re.sub(r"\n```$", "", markdown)
+    suffix = image_path.suffix.lower()
+    slug = unique_slug(slugify(result["tittel"]), taken, suffix)
+    new_image_name = f"{slug}{suffix}"
+    markdown = build_markdown(result, new_image_name)
 
-    # Pass 2: Review and fix
-    print(f"  Pass 2: Reviewing...", file=sys.stderr)
-    review = review_transcription(client, image_data, media_type, markdown)
-    markdown = review["markdown"]
-    changes = review["changes"]
+    if dry_run:
+        print(f"\n=== {image_path.name} -> {slug} ===")
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        print("--- markdown ---")
+        print(markdown)
+        return True
 
-    if changes:
-        print(f"  Made {len(changes)} correction(s).", file=sys.stderr)
-    else:
-        print(f"  No corrections needed.", file=sys.stderr)
-
-    title = extract_title(markdown)
-    slug = slugify(title)
-    branch = f"recipe/{slug}"
-
-    # Start a clean branch from main for this recipe
-    git(["checkout", "main"])
-    git(["checkout", "-b", branch])
-
-    # Rename the image to match the recipe slug
-    new_image_name = f"{slug}{image_path.suffix.lower()}"
     new_image_path = image_path.parent / new_image_name
     if new_image_path != image_path:
         git(["mv", str(image_path), str(new_image_path)])
         print(f"  Renamed: {image_path.name} -> {new_image_name}", file=sys.stderr)
 
-    # Update the original_skann field in markdown
-    markdown = markdown.replace("FILENAME", new_image_name)
-    markdown = re.sub(
-        r'original_skann:\s*"skannar/[^"]*"',
-        f'original_skann: "skannar/{new_image_name}"',
-        markdown,
-    )
-
-    # Write and stage the markdown file
     OPPSKRIFTER_DIR.mkdir(parents=True, exist_ok=True)
     md_path = OPPSKRIFTER_DIR / f"{slug}.md"
     md_path.write_text(markdown, encoding="utf-8")
     git(["add", str(md_path)])
-    print(f"  Created: {md_path.name}", file=sys.stderr)
-
-    # Commit and push
-    git(["commit", "-m", f"Add recipe: {title}\n\nCo-Authored-By: Claude <noreply@anthropic.com>"])
-    git(["push", "origin", branch])
-    print(f"  Pushed branch: {branch}", file=sys.stderr)
-
-    # Return to main before processing next image
-    git(["checkout", "main"])
-
-    return {
-        "title": title,
-        "slug": slug,
-        "branch": branch,
-        "image": image_path.name,
-        "new_image": new_image_name,
-        "changes": changes,
-    }
+    print(f"  Wrote: {md_path.name} ({result['kategori']})", file=sys.stderr)
+    return True
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--dry-run", action="store_true", help="Print results without touching git or files.")
+    args = parser.parse_args()
+
     images = get_new_images()
     if not images:
         print("No new images to process.", file=sys.stderr)
-        print("[]")
         return
 
     client = anthropic.Anthropic()
-    results = []
-
+    taken: set[str] = set()
+    processed = 0
     for image_path in images:
-        result = process_image(client, image_path)
-        results.append(result)
+        if process_image(client, image_path, taken, args.dry_run):
+            processed += 1
 
-    print(f"Done! Processed {len(images)} image(s).", file=sys.stderr)
-    print(json.dumps(results))
+    if args.dry_run:
+        print(f"\nDry run complete: {processed}/{len(images)} image(s) processed.", file=sys.stderr)
+        return
+
+    if processed == 0:
+        print("No images processed successfully; nothing to commit.", file=sys.stderr)
+        return
+
+    git(["commit", "-m", f"Add {processed} scanned recipe(s) to the archive\n\nCo-Authored-By: Claude <noreply@anthropic.com>"])
+    print(f"Committed {processed} recipe(s) to the current branch.", file=sys.stderr)
 
 
 if __name__ == "__main__":

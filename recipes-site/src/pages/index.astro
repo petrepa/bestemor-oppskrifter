@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import RecipeCard from '../components/RecipeCard.astro';
+import Search from '../components/Search.astro';
 import { getCollection } from 'astro:content';
 
 const oppskrifter = await getCollection('oppskrifter');
@@ -23,29 +24,10 @@ const sorted = oppskrifter.sort(
     </div>
     <h1>Bestemor sine oppskrifter</h1>
     <p class="hero-subtitle">
-      Ei samling av handskrivne oppskrifter frå Remøya
+      Eit søkbart arkiv av handskrivne oppskrifter frå Remøya
     </p>
-    <div id="search" class="search-container"></div>
+    <Search />
   </section>
-
-  <link href={`${import.meta.env.BASE_URL}/pagefind/pagefind-ui.css`} rel="stylesheet" />
-  <script is:inline define:vars={{ base: import.meta.env.BASE_URL }}>
-    window.addEventListener('DOMContentLoaded', () => {
-      const script = document.createElement('script');
-      script.src = base + '/pagefind/pagefind-ui.js';
-      script.onload = () => {
-        new PagefindUI({
-          element: '#search',
-          showSubResults: true,
-          translations: {
-            placeholder: 'Søk i oppskrifter...',
-            zero_results: 'Fann ingen resultat for [SEARCH_TERM]',
-          },
-        });
-      };
-      document.head.appendChild(script);
-    });
-  </script>
 
   <section class="recipes-section">
     <h2 class="section-title">Oppskrifter</h2>
@@ -57,6 +39,7 @@ const sorted = oppskrifter.sort(
             slug={recipe.id}
             kategori={recipe.data.kategori}
             tags={recipe.data.tags}
+            original_skann={recipe.data.original_skann}
           />
         ))
       }
@@ -87,11 +70,6 @@ const sorted = oppskrifter.sort(
     color: var(--color-muted);
     max-width: 500px;
     margin: 0 auto 2rem;
-  }
-
-  .search-container {
-    max-width: 500px;
-    margin: 0 auto;
   }
 
   .section-title {
