@@ -49,7 +49,6 @@ From the image, produce:
 2. kategori: the single best-fitting category from this list: {", ".join(CATEGORIES)}.
 3. tags: 3-8 short lowercase Nynorsk keywords someone might search for — the dish name, the main ingredients, dialect or alternative names, and closely related dishes (e.g. for lefse: "lefse", "potet", "mjol", "flatbraud", "baking").
 4. transkripsjon: a rough, best-effort plain reading of everything written on the scan (ingredients and method). Expand shorthand and dialect into full searchable words, and guess liberally at unclear handwriting rather than stalling. Mark genuinely illegible fragments with [ulesleg]. Because this text is only used for search, err on the side of including more searchable words.
-5. rotasjon: how many degrees CLOCKWISE the image must be rotated so the handwriting reads upright for a human. 0 if it is already upright.
 
 Write everything in Nynorsk."""
 
@@ -60,22 +59,22 @@ RESPONSE_SCHEMA = {
         "kategori": {"type": "string", "enum": CATEGORIES},
         "tags": {"type": "array", "items": {"type": "string"}},
         "transkripsjon": {"type": "string"},
-        "rotasjon": {"type": "integer", "enum": [0, 90, 180, 270]},
     },
-    "required": ["tittel", "kategori", "tags", "transkripsjon", "rotasjon"],
+    "required": ["tittel", "kategori", "tags", "transkripsjon"],
     "additionalProperties": False,
 }
 
 ROTATION_PROMPT = (
-    "This is a scanned handwritten recipe. How many degrees CLOCKWISE must the "
-    "image be rotated so the handwriting reads upright for a human? "
-    "Answer 0 if it is already upright."
+    "Above are four versions (A, B, C, D) of the same scanned handwritten recipe, "
+    "each rotated differently. Exactly one is upright: the lines of handwriting run "
+    "horizontally and read naturally left to right, top to bottom. "
+    "Which one is upright?"
 )
 
 ROTATION_SCHEMA = {
     "type": "object",
-    "properties": {"rotasjon": {"type": "integer", "enum": [0, 90, 180, 270]}},
-    "required": ["rotasjon"],
+    "properties": {"opprett": {"type": "string", "enum": ["A", "B", "C", "D"]}},
+    "required": ["opprett"],
     "additionalProperties": False,
 }
 
@@ -184,22 +183,43 @@ def rotate_bytes(image_bytes: bytes, degrees_cw: int) -> bytes:
     return buf.getvalue()
 
 
-def detect_rotation(client: anthropic.Anthropic, image_data: str, media_type: str) -> int:
-    """Ask Claude how many degrees clockwise a scan must turn to read upright."""
+def detect_rotation(client: anthropic.Anthropic, image_bytes: bytes) -> int:
+    """Return how many degrees clockwise a scan must rotate to read upright.
+
+    Shows all four candidate rotations side by side and asks which one is
+    upright. Recognition is far more reliable than asking the model to mentally
+    rotate a single image — direction confusion there ("is rotated 90" vs
+    "rotate by 90") left sideways scans upside down.
+    """
+    from PIL import Image
+
+    letters = ["A", "B", "C", "D"]
+    degrees = [0, 90, 180, 270]
+
+    img = Image.open(io.BytesIO(image_bytes))
+    if img.mode != "RGB":
+        img = img.convert("RGB")
+    img.thumbnail((512, 512))  # small variants keep the request cheap
+
+    content = []
+    for letter, deg in zip(letters, degrees):
+        variant = img.rotate(-deg, expand=True)  # variant = original rotated deg CW
+        buf = io.BytesIO()
+        variant.save(buf, format="JPEG", quality=70)
+        data = base64.standard_b64encode(buf.getvalue()).decode("utf-8")
+        content.append({"type": "text", "text": f"Bilde {letter}:"})
+        content.append({"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": data}})
+    content.append({"type": "text", "text": ROTATION_PROMPT})
+
     response = client.messages.create(
         model=MODEL,
         max_tokens=1024,
         output_config={"format": {"type": "json_schema", "schema": ROTATION_SCHEMA}},
-        messages=[{
-            "role": "user",
-            "content": [
-                {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": image_data}},
-                {"type": "text", "text": ROTATION_PROMPT},
-            ],
-        }],
+        messages=[{"role": "user", "content": content}],
     )
     text = next(b.text for b in response.content if b.type == "text")
-    return json.loads(text)["rotasjon"]
+    # The chosen variant was made by rotating deg CW, so deg is the fix itself.
+    return degrees[letters.index(json.loads(text)["opprett"])]
 
 
 def get_new_images() -> list[Path]:
@@ -273,6 +293,23 @@ def git(args: list[str], **kwargs) -> subprocess.CompletedProcess:
 def process_image(client: anthropic.Anthropic, image_path: Path, taken: set[str], dry_run: bool) -> bool:
     print(f"Processing: {image_path.name}", file=sys.stderr)
     image_bytes, rotated = load_upright(image_path)
+
+    # Straighten photos taken sideways BEFORE classifying, so the transcription
+    # is read from an upright scan (no EXIF flag to go on — the four-way check
+    # judges from the handwriting direction).
+    try:
+        degrees = detect_rotation(client, image_bytes)
+    except Exception as exc:
+        print(f"  Rotation check failed for {image_path.name}, keeping as-is: {exc}", file=sys.stderr)
+        degrees = 0
+    if degrees:
+        try:
+            image_bytes = rotate_bytes(image_bytes, degrees)
+            rotated = True
+            print(f"  Rotating {degrees} deg clockwise (handwriting was sideways)", file=sys.stderr)
+        except Exception as exc:
+            print(f"  Could not rotate {image_path.name}: {exc}", file=sys.stderr)
+
     image_data = base64.standard_b64encode(image_bytes).decode("utf-8")
     media_type = MEDIA_TYPES.get(image_path.suffix.lower(), "image/jpeg")
 
@@ -281,17 +318,6 @@ def process_image(client: anthropic.Anthropic, image_path: Path, taken: set[str]
     except Exception as exc:  # keep one bad scan from killing the whole batch
         print(f"  Failed to classify {image_path.name}: {exc}", file=sys.stderr)
         return False
-
-    # Physically rotate photos taken sideways (no EXIF flag to go on — Claude
-    # reports the rotation from the direction of the handwriting).
-    degrees = result.get("rotasjon", 0)
-    if degrees:
-        try:
-            image_bytes = rotate_bytes(image_bytes, degrees)
-            rotated = True
-            print(f"  Rotating {degrees} deg clockwise (handwriting was sideways)", file=sys.stderr)
-        except Exception as exc:
-            print(f"  Could not rotate {image_path.name}: {exc}", file=sys.stderr)
 
     suffix = image_path.suffix.lower()
     slug = unique_slug(slugify(result["tittel"]), taken, suffix)
@@ -340,9 +366,8 @@ def fix_rotation(client: anthropic.Anthropic, dry_run: bool) -> None:
     fixed = 0
     for p in images:
         raw, exif_rotated = load_upright(p)
-        data = base64.standard_b64encode(raw).decode("utf-8")
         try:
-            degrees = detect_rotation(client, data, MEDIA_TYPES[p.suffix.lower()])
+            degrees = detect_rotation(client, raw)
         except Exception as exc:
             print(f"  Failed rotation check for {p.name}: {exc}", file=sys.stderr)
             continue
