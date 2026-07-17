@@ -146,6 +146,31 @@ def load_upright(image_path: Path) -> tuple[bytes, bool]:
         return raw, False
 
 
+# Downscaled copies served by the site: thumb for card grids / search results,
+# web for the inline scan on the detail page. The full original is only loaded
+# in the zoom view.
+DERIVATIVE_SPECS = {
+    "thumb": {"max_px": 640, "quality": 72},
+    "web": {"max_px": 1600, "quality": 80},
+}
+
+
+def make_derivatives(image_bytes: bytes, name: str) -> None:
+    """Write and stage downscaled copies under skannar/thumb/ and skannar/web/."""
+    from PIL import Image
+
+    for kind, spec in DERIVATIVE_SPECS.items():
+        out_dir = SKANNAR_DIR / kind
+        out_dir.mkdir(exist_ok=True)
+        img = Image.open(io.BytesIO(image_bytes))
+        img.thumbnail((spec["max_px"], spec["max_px"]))  # in place, keeps aspect ratio
+        out = out_dir / name
+        if out.suffix.lower() in (".jpg", ".jpeg") and img.mode != "RGB":
+            img = img.convert("RGB")
+        img.save(out, quality=spec["quality"])
+        git(["add", str(out)])
+
+
 def rotate_bytes(image_bytes: bytes, degrees_cw: int) -> bytes:
     """Rotate image pixels clockwise by 90/180/270 degrees and re-encode."""
     from PIL import Image
@@ -198,7 +223,8 @@ def get_new_images() -> list[Path]:
     paths = []
     for line in result.stdout.strip().splitlines():
         p = REPO_ROOT / line
-        if p.suffix.lower() in MEDIA_TYPES and p.exists():
+        # Only top-level scans count — thumb/ and web/ hold generated derivatives.
+        if p.suffix.lower() in MEDIA_TYPES and p.exists() and p.parent == SKANNAR_DIR:
             paths.append(p)
     return paths
 
@@ -285,6 +311,10 @@ def process_image(client: anthropic.Anthropic, image_path: Path, taken: set[str]
     new_image_path = image_path.parent / new_image_name
     new_image_path.write_bytes(image_bytes)
     git(["add", str(new_image_path)])
+    try:
+        make_derivatives(image_bytes, new_image_name)
+    except Exception as exc:
+        print(f"  Could not make derivatives for {new_image_name}: {exc}", file=sys.stderr)
     if new_image_path != image_path:
         image_path.unlink(missing_ok=True)
         git(["add", str(image_path)])
@@ -305,7 +335,7 @@ def fix_rotation(client: anthropic.Anthropic, dry_run: bool) -> None:
     Uses the direction of the handwriting (judged by Claude) since phone photos
     of sideways paper carry no EXIF orientation to correct from.
     """
-    images = sorted(p for p in SKANNAR_DIR.iterdir() if p.suffix.lower() in MEDIA_TYPES)
+    images = sorted(p for p in SKANNAR_DIR.iterdir() if p.is_file() and p.suffix.lower() in MEDIA_TYPES)
     print(f"Checking rotation of {len(images)} scan(s)...", file=sys.stderr)
     fixed = 0
     for p in images:
@@ -327,6 +357,10 @@ def fix_rotation(client: anthropic.Anthropic, dry_run: bool) -> None:
             raw = rotate_bytes(raw, degrees)
         p.write_bytes(raw)
         git(["add", str(p)])
+        try:  # derivatives must match the corrected original
+            make_derivatives(raw, p.name)
+        except Exception as exc:
+            print(f"  Could not refresh derivatives for {p.name}: {exc}", file=sys.stderr)
         fixed += 1
 
     if dry_run:
@@ -339,15 +373,49 @@ def fix_rotation(client: anthropic.Anthropic, dry_run: bool) -> None:
     print(f"Committed rotation fixes for {fixed} scan(s).", file=sys.stderr)
 
 
+def make_all_derivatives(dry_run: bool) -> None:
+    """Backfill pass (no API calls): generate missing thumb/web copies for every scan."""
+    images = sorted(p for p in SKANNAR_DIR.iterdir() if p.is_file() and p.suffix.lower() in MEDIA_TYPES)
+    made = 0
+    for p in images:
+        missing = [k for k in DERIVATIVE_SPECS if not (SKANNAR_DIR / k / p.name).exists()]
+        if not missing:
+            continue
+        print(f"  Deriving {'/'.join(missing)} for {p.name}", file=sys.stderr)
+        if dry_run:
+            made += 1
+            continue
+        try:
+            make_derivatives(p.read_bytes(), p.name)
+            made += 1
+        except Exception as exc:
+            print(f"  Failed derivatives for {p.name}: {exc}", file=sys.stderr)
+
+    if dry_run:
+        print(f"Dry run: {made} scan(s) would get derivatives.", file=sys.stderr)
+        return
+    if made == 0:
+        print("All derivatives present; nothing to commit.", file=sys.stderr)
+        return
+    git(["commit", "-m", f"Generate thumb/web derivatives for {made} scan(s)\n\nCo-Authored-By: Claude <noreply@anthropic.com>"])
+    print(f"Committed derivatives for {made} scan(s).", file=sys.stderr)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="Print results without touching git or files.")
     parser.add_argument("--fix-rotation", action="store_true",
                         help="Check every existing scan and rotate the ones whose handwriting is sideways.")
+    parser.add_argument("--derivatives", action="store_true",
+                        help="Generate missing thumb/web downscaled copies for every scan (no API calls).")
     args = parser.parse_args()
 
     if args.fix_rotation:
         fix_rotation(anthropic.Anthropic(), args.dry_run)
+        return
+
+    if args.derivatives:
+        make_all_derivatives(args.dry_run)
         return
 
     images = get_new_images()
