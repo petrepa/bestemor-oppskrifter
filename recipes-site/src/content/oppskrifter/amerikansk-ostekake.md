@@ -1,12 +1,12 @@
 ---
-tittel: "Amerikanske pannekaker"
-tags: ["pannekaker", "vaniljesukker", "egg", "fløte", "dessert", "amerikansk"]
+tittel: "Amerikanske ostekake"
+tags: ["ostekake", "vaniljesukker", "egg", "fløte", "dessert", "amerikansk"]
 kategori: "Dessert"
 dato: 2026-07-17
 original_skann: "skannar/amerikanske-pannekaker.jpg"
 ---
 
-Amerikanske pannekaker.
+Amerikanske ostekake.
 
 18 laurbærblad (kornmo) knuses. Blandes med 180-200 g smelta margarin eller smør. Denne blandinga i ei paiform. (bake-)
 
