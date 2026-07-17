@@ -17,6 +17,7 @@ more images without touching git or the filesystem.
 import anthropic
 import argparse
 import base64
+import io
 import json
 import os
 import re
@@ -102,6 +103,34 @@ def unique_slug(base: str, taken: set[str], suffix: str) -> str:
     return slug
 
 
+def load_upright(image_path: Path) -> tuple[bytes, bool]:
+    """Return image bytes with EXIF orientation baked in as real pixels.
+
+    Phone cameras often store a photo sideways with an EXIF "rotate me" flag.
+    Baking the rotation in makes the scan display upright in every viewer and
+    lets Claude read it the right way up. Returns (bytes, rotated). When the
+    orientation is missing or already upright (1) the original bytes are
+    returned unchanged — no re-encode, no quality loss.
+    """
+    raw = image_path.read_bytes()
+    try:
+        from PIL import Image, ImageOps
+
+        img = Image.open(io.BytesIO(raw))
+        orientation = img.getexif().get(0x0112)  # EXIF Orientation tag
+        if orientation in (None, 1):
+            return raw, False
+        upright = ImageOps.exif_transpose(img)  # applies rotation, drops the tag
+        buf = io.BytesIO()
+        fmt = (img.format or "JPEG").upper()
+        save_kwargs = {"quality": 95} if fmt in ("JPEG", "WEBP") else {}
+        upright.save(buf, format=fmt, **save_kwargs)
+        return buf.getvalue(), True
+    except Exception as exc:  # never let orientation handling block ingestion
+        print(f"  Could not normalise orientation for {image_path.name}: {exc}", file=sys.stderr)
+        return raw, False
+
+
 def get_new_images() -> list[Path]:
     image_names_env = os.environ.get("IMAGE_NAMES", "").strip()
     if image_names_env:
@@ -171,7 +200,8 @@ def git(args: list[str], **kwargs) -> subprocess.CompletedProcess:
 
 def process_image(client: anthropic.Anthropic, image_path: Path, taken: set[str], dry_run: bool) -> bool:
     print(f"Processing: {image_path.name}", file=sys.stderr)
-    image_data = base64.standard_b64encode(image_path.read_bytes()).decode("utf-8")
+    image_bytes, rotated = load_upright(image_path)
+    image_data = base64.standard_b64encode(image_bytes).decode("utf-8")
     media_type = MEDIA_TYPES.get(image_path.suffix.lower(), "image/jpeg")
 
     try:
@@ -192,10 +222,17 @@ def process_image(client: anthropic.Anthropic, image_path: Path, taken: set[str]
         print(markdown)
         return True
 
+    # Write the (upright) image under the slug name and stage the change.
+    # Writing the bytes covers both the rotated case (re-encoded) and the plain
+    # rename (byte-identical); staging the old path records the deletion.
     new_image_path = image_path.parent / new_image_name
+    new_image_path.write_bytes(image_bytes)
+    git(["add", str(new_image_path)])
     if new_image_path != image_path:
-        git(["mv", str(image_path), str(new_image_path)])
-        print(f"  Renamed: {image_path.name} -> {new_image_name}", file=sys.stderr)
+        image_path.unlink(missing_ok=True)
+        git(["add", str(image_path)])
+    action = "Rotated + saved" if rotated else "Saved"
+    print(f"  {action}: {image_path.name} -> {new_image_name}", file=sys.stderr)
 
     OPPSKRIFTER_DIR.mkdir(parents=True, exist_ok=True)
     md_path = OPPSKRIFTER_DIR / f"{slug}.md"

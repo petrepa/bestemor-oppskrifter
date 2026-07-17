@@ -51,7 +51,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.find-images.outputs.found == 'true'
-        run: pip install anthropic
+        run: pip install anthropic pillow
 
       - name: Extract metadata and commit
         if: steps.find-images.outputs.found == 'true'
