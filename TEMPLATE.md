@@ -6,14 +6,6 @@ dato: 2024-01-01
 original_skann: "skannar/filnamn.jpg"
 ---
 
-## Ingrediensar
-
-- Ingrediens 1
-- Ingrediens 2
-- Ingrediens 3
-
-## Framgangsmåte
-
-1. Steg 1
-2. Steg 2
-3. Steg 3
+Grov transkribering av skannen — berre til søk, treng ikkje vere korrekt.
+Ta med ingrediensar, framgangsmåte, dialektord og alternative namn slik at
+oppskrifta blir lett å finne att.

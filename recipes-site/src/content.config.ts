@@ -8,7 +8,7 @@ const oppskrifter = defineCollection({
     tags: z.array(z.string()),
     kategori: z.string(),
     dato: z.date(),
-    original_skann: z.string().optional(),
+    original_skann: z.string(),
   }),
 });
 

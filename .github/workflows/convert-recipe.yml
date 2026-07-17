@@ -1,4 +1,4 @@
-name: Convert recipe from scan
+name: Ingest recipe scan
 
 on:
   push:
@@ -8,16 +8,16 @@ on:
   workflow_dispatch:
     inputs:
       images:
-        description: 'Comma-separated image filenames to process (e.g. PXL_123.jpg,PXL_456.jpg). Leave empty to auto-detect from last commit.'
+        description: 'Comma-separated image filenames to (re)process (e.g. PXL_123.jpg,PXL_456.jpg). Leave empty to auto-detect from last commit.'
         required: false
         default: ''
 
 jobs:
-  convert:
+  ingest:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
+      actions: write
 
     steps:
       - name: Checkout
@@ -32,7 +32,7 @@ jobs:
             echo "Using manually specified images: ${{ inputs.images }}"
             echo "found=true" >> "$GITHUB_OUTPUT"
           else
-            NEW_IMAGES=$(git diff --name-only --diff-filter=A HEAD~1 HEAD -- 'recipes-site/public/skannar/*' | grep -iE '\.(jpg|jpeg|png|gif|webp|heic)$' || true)
+            NEW_IMAGES=$(git diff --name-only --diff-filter=A HEAD~1 HEAD -- 'recipes-site/public/skannar/*' | grep -iE '\.(jpg|jpeg|png|gif|webp)$' || true)
             if [ -z "$NEW_IMAGES" ]; then
               echo "No new images found."
               echo "found=false" >> "$GITHUB_OUTPUT"
@@ -53,7 +53,7 @@ jobs:
         if: steps.find-images.outputs.found == 'true'
         run: pip install anthropic
 
-      - name: Convert images to recipes
+      - name: Extract metadata and commit
         if: steps.find-images.outputs.found == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -61,39 +61,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          python .github/scripts/convert_recipe.py > /tmp/recipes.json
+          python .github/scripts/convert_recipe.py
+          git push origin HEAD:main
 
-      - name: Create PRs
+      - name: Trigger deploy
         if: steps.find-images.outputs.found == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          RECIPES=$(cat /tmp/recipes.json)
-          COUNT=$(echo "$RECIPES" | jq length)
-
-          for i in $(seq 0 $((COUNT - 1))); do
-            TITLE=$(echo "$RECIPES" | jq -r ".[$i].title")
-            IMAGE=$(echo "$RECIPES" | jq -r ".[$i].image")
-            NEW_IMAGE=$(echo "$RECIPES" | jq -r ".[$i].new_image")
-            BRANCH=$(echo "$RECIPES" | jq -r ".[$i].branch")
-            CHANGES=$(echo "$RECIPES" | jq -c ".[$i].changes")
-            IMAGE_URL="https://raw.githubusercontent.com/${{ github.repository }}/${BRANCH}/recipes-site/public/skannar/${NEW_IMAGE}"
-
-            echo "=== Creating PR for: $TITLE ==="
-
-            # Build changes section if any
-            CHANGES_SECTION=""
-            CHANGES_COUNT=$(echo "$CHANGES" | jq length)
-            if [ "$CHANGES_COUNT" -gt 0 ]; then
-              CHANGES_LIST=$(echo "$CHANGES" | jq -r '.[] | "- " + .')
-              CHANGES_SECTION="$(printf '\n### Endringar gjort av AI-korrektur\n\nDesse antakingane/rettingane vart gjort automatisk:\n\n%s\n' "$CHANGES_LIST")"
-            fi
-
-            gh pr create \
-              --title "Ny oppskrift: ${TITLE}" \
-              --head "$BRANCH" \
-              --base main \
-              --body "$(printf '## Ny oppskrift: %s\n\n![%s](%s)\n\nAutomatisk transkribering frå `%s`.%s\n### Sjekkliste\n\n- [ ] Tittelen er riktig\n- [ ] Ingrediensane stemmer\n- [ ] Framgangsmåten er komplett\n- [ ] Kategori og taggar passar\n\n🤖 Generert med Claude API' "$TITLE" "$TITLE" "$IMAGE_URL" "$IMAGE" "$CHANGES_SECTION")"
-
-            echo "PR created for: $TITLE"
-          done
+        run: gh workflow run deploy.yml --ref main
