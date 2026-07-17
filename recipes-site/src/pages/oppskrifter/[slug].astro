@@ -1,4 +1,5 @@
 ---
+import fs from 'node:fs';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import TagList from '../../components/TagList.astro';
 import { getCollection, render } from 'astro:content';
@@ -15,6 +16,16 @@ const { recipe } = Astro.props;
 const { Content } = await render(recipe);
 const base = import.meta.env.BASE_URL;
 const scanUrl = `${base}/${recipe.data.original_skann.replace(/^\//, '')}`;
+
+// Downscaled derivatives (generated at ingest): web (~300 KB) for the inline
+// view, thumb (~50 KB) for search-result images. The multi-MB original is only
+// loaded when the zoom view opens. Existence checked at build time so missing
+// derivatives fall back to the original.
+const fileName = recipe.data.original_skann.split('/').pop();
+const hasWeb = fs.existsSync(`public/skannar/web/${fileName}`);
+const hasThumb = fs.existsSync(`public/skannar/thumb/${fileName}`);
+const webUrl = hasWeb ? `${base}/skannar/web/${fileName}` : scanUrl;
+const thumbUrl = hasThumb ? `${base}/skannar/thumb/${fileName}` : scanUrl;
 ---
 
 <BaseLayout title={recipe.data.tittel}>
@@ -27,11 +38,13 @@ const scanUrl = `${base}/${recipe.data.original_skann.replace(/^\//, '')}`;
 
     <figure class="scan">
       <img
-        src={scanUrl}
+        src={webUrl}
         alt={`Skannet oppskrift: ${recipe.data.tittel}`}
-        loading="lazy"
+        fetchpriority="high"
+        decoding="async"
         class="scan-image"
-        data-pagefind-meta="image[src], image_alt[alt]"
+        data-thumb={thumbUrl}
+        data-pagefind-meta="image[data-thumb], image_alt[alt]"
       />
       <figcaption>Trykk på biletet for å sjå det i full storleik</figcaption>
     </figure>
@@ -50,7 +63,9 @@ const scanUrl = `${base}/${recipe.data.original_skann.replace(/^\//, '')}`;
 
   <div id="lightbox" class="lightbox">
     <button type="button" class="lightbox-close" aria-label="Lukk">&times;</button>
-    <img src={scanUrl} alt={`Skannet oppskrift: ${recipe.data.tittel}`} />
+    <!-- Full-resolution original; loading=lazy defers the multi-MB download
+         until the lightbox is actually opened (it is display:none until then). -->
+    <img src={scanUrl} alt={`Skannet oppskrift: ${recipe.data.tittel}`} loading="lazy" />
   </div>
 
   <script is:inline>

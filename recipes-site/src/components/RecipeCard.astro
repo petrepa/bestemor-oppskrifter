@@ -1,4 +1,6 @@
 ---
+import fs from 'node:fs';
+
 interface Props {
   tittel: string;
   slug: string;
@@ -10,11 +12,17 @@ interface Props {
 const { tittel, slug, kategori, tags, original_skann } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const scanUrl = `${base}/${original_skann.replace(/^\//, '')}`;
+
+// Serve the small thumb (~50 KB) instead of the multi-MB original when it
+// exists; checked at build time so missing derivatives fall back gracefully.
+const fileName = original_skann.split('/').pop();
+const hasThumb = fs.existsSync(`public/skannar/thumb/${fileName}`);
+const thumbUrl = hasThumb ? `${base}/skannar/thumb/${fileName}` : scanUrl;
 ---
 
 <a href={`${base}/oppskrifter/${slug}/`} class="recipe-card">
   <div class="card-thumb">
-    <img src={scanUrl} alt={`Skann: ${tittel}`} loading="lazy" />
+    <img src={thumbUrl} alt={`Skann: ${tittel}`} loading="lazy" decoding="async" />
   </div>
   <div class="card-body">
     <span class="card-kategori">{kategori}</span>
