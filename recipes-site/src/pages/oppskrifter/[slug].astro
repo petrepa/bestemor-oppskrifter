@@ -48,7 +48,8 @@ const scanUrl = `${base}/${recipe.data.original_skann.replace(/^\//, '')}`;
     </div>
   </article>
 
-  <div id="lightbox" class="lightbox" hidden>
+  <div id="lightbox" class="lightbox">
+    <button type="button" class="lightbox-close" aria-label="Lukk">&times;</button>
     <img src={scanUrl} alt={`Skannet oppskrift: ${recipe.data.tittel}`} />
   </div>
 
@@ -58,17 +59,17 @@ const scanUrl = `${base}/${recipe.data.original_skann.replace(/^\//, '')}`;
       const lightbox = document.getElementById('lightbox');
       if (!img || !lightbox) return;
       const open = () => {
-        lightbox.hidden = false;
+        lightbox.classList.add('is-open');
         document.body.style.overflow = 'hidden';
       };
       const close = () => {
-        lightbox.hidden = true;
+        lightbox.classList.remove('is-open');
         document.body.style.overflow = '';
       };
       img.addEventListener('click', open);
       lightbox.addEventListener('click', close);
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !lightbox.hidden) close();
+        if (e.key === 'Escape' && lightbox.classList.contains('is-open')) close();
       });
     })();
   </script>
@@ -163,15 +164,20 @@ const scanUrl = `${base}/${recipe.data.original_skann.replace(/^\//, '')}`;
   }
 
   .lightbox {
+    display: none;
     position: fixed;
     inset: 0;
-    background: rgba(30, 20, 12, 0.9);
-    display: flex;
+    background: rgba(24, 16, 10, 0.97);
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    z-index: 100;
+    z-index: 1000;
     cursor: zoom-out;
+    overscroll-behavior: contain;
+  }
+
+  .lightbox.is-open {
+    display: flex;
   }
 
   .lightbox img {
@@ -179,5 +185,28 @@ const scanUrl = `${base}/${recipe.data.original_skann.replace(/^\//, '')}`;
     max-height: 100%;
     border-radius: 8px;
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .lightbox-close {
+    position: fixed;
+    top: 1rem;
+    right: 1.25rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .lightbox-close:hover {
+    background: rgba(255, 255, 255, 0.3);
   }
 </style>
