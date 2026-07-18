@@ -3,6 +3,7 @@ tittel: "Sirupsnippar (Ragnhild)"
 tags: ["sirupsnipper", "sirup", "julebakst", "hjortetakksalt", "kaker", "baking", "tradisjon"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sirupsnippar-ragnhild.jpg"
 ---
 

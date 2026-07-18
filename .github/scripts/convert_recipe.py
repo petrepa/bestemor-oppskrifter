@@ -273,6 +273,10 @@ def build_markdown(result: dict, image_name: str) -> str:
         return s.replace('"', "'").strip()
 
     tags = ", ".join(f'"{q(t)}"' for t in result["tags"])
+    # Which book the scan comes from (id in the boker collection), set via the
+    # workflow's kjelde input when a batch is dispatched.
+    kjelde = os.environ.get("KJELDE", "").strip()
+    kjelde_line = f'kjelde: "{q(kjelde)}"\n' if kjelde else ""
     return (
         "---\n"
         f'tittel: "{q(result["tittel"])}"\n'
@@ -280,6 +284,7 @@ def build_markdown(result: dict, image_name: str) -> str:
         f'kategori: "{q(result["kategori"])}"\n'
         f"dato: {date.today().isoformat()}\n"
         f'original_skann: "skannar/{image_name}"\n'
+        f"{kjelde_line}"
         "---\n\n"
         f"{result['transkripsjon'].strip()}\n"
     )

@@ -3,6 +3,7 @@ tittel: "Harde vaflar"
 tags: ["harde vafler", "vaflar", "mandelkrem", "sukker", "smør", "potetmjøl", "hjortesalt"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/harde-vaflar.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Eple i karamell"
 tags: ["eple", "karamell", "dessert", "fløyte", "vaniljesukker", "kanel", "potetmjøl"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/eple-i-karamell.jpg"
 ---
 

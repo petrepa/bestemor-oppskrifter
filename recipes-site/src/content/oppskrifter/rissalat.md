@@ -3,6 +3,7 @@ tittel: "Rissalat"
 tags: ["rissalat", "ris", "fiskepudding", "asparges", "majones", "salat"]
 kategori: "Middag"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/rissalat.jpg"
 ---
 

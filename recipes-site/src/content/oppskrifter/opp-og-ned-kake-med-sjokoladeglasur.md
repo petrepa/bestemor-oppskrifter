@@ -3,6 +3,7 @@ tittel: "Opp og ned kake med sjokoladeglasur"
 tags: ["kake", "sjokoladekake", "glasur", "kakao", "vaniljekrem", "baking", "opp og ned kake"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/opp-og-ned-kake-med-sjokoladeglasur.jpg"
 ---
 

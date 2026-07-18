@@ -3,6 +3,7 @@ tittel: "Hardingar (hardinglefse)"
 tags: ["hardinger", "lefse", "kefir", "rømme", "kveitemjøl", "baking", "hardanger"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/hardingar-hardinglefse.jpg"
 ---
 

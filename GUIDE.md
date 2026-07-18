@@ -31,6 +31,7 @@ original_skann: "skannar/vaflar-original.jpg"
 | `kategori`       | Hovudkategori                                            | Ja       |
 | `dato`           | Dato i format YYYY-MM-DD                                 | Ja       |
 | `original_skann` | Sti til originalbilete (utan leiande `/`)                | Ja       |
+| `kjelde`         | Kva bok skannen kjem frå — id frå `src/content/boker/` (t.d. `groneboka`) | Nei |
 
 ### 3. Tilgjengelege kategoriar
 

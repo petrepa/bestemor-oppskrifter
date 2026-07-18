@@ -3,6 +3,7 @@ tittel: "Svisserull med karamellkrem"
 tags: ["svisserull", "rullekake", "karamellkrem", "egg", "kakerull", "dessert"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/svisserull-med-karamellkrem.jpg"
 ---
 

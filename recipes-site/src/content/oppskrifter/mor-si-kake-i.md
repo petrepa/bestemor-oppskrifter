@@ -3,6 +3,7 @@ tittel: "Mor si kake I"
 tags: ["kake", "sandkake", "mandel", "glasur", "baking", "margarin", "kveitemjol"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/mor-si-kake-i.jpg"
 ---
 

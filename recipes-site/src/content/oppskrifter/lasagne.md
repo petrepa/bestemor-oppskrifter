@@ -3,6 +3,7 @@ tittel: "Lasagne"
 tags: ["lasagne", "kjøttsaus", "ostesaus", "kjøttdeig", "tomatpure", "pasta", "gratineng", "ost"]
 kategori: "Middag"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/lasagne.jpg"
 ---
 

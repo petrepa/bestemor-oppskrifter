@@ -3,6 +3,7 @@ tittel: "Daimkake"
 tags: ["daimkake", "kake", "eggekvite", "mandlar", "krem", "daim", "fløyte", "dessert"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/daimkake.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Ostekake med druer"
 tags: ["ostekake", "druer", "kremost", "sitron", "lettrømme", "dessert", "baking"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/ostekake-med-druer.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Prinsekake"
 tags: ["prinsekake", "kake", "egg", "smør", "sukker", "kveitemjøl", "poteitmjøl", "bakepulver", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/prinsekake.jpg"
 ---
 

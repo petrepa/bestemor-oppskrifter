@@ -3,6 +3,7 @@ tittel: "Mokkabitar"
 tags: ["mokkabitar", "kake", "sjokolade", "kakao", "kaffi", "glasur", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/mokkabitar.jpg"
 ---
 

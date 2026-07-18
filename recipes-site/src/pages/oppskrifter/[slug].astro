@@ -17,6 +17,12 @@ const { Content } = await render(recipe);
 const base = import.meta.env.BASE_URL;
 const scanUrl = `${base}/${recipe.data.original_skann.replace(/^\//, '')}`;
 
+// The physical book this scan comes from, if recorded.
+const boker = await getCollection('boker');
+const kjeldebok = recipe.data.kjelde
+  ? boker.find((b) => b.id === recipe.data.kjelde)
+  : undefined;
+
 // Downscaled derivatives (generated at ingest): web (~300 KB) for the inline
 // view, thumb (~50 KB) for search-result images. The multi-MB original is only
 // loaded when the zoom view opens. Existence checked at build time so missing
@@ -33,6 +39,13 @@ const thumbUrl = hasThumb ? `${base}/skannar/thumb/${fileName}` : scanUrl;
     <header class="recipe-header">
       <a href={`${base}/kategoriar/`} class="breadcrumb-kategori">{recipe.data.kategori}</a>
       <h1>{recipe.data.tittel}</h1>
+      {
+        kjeldebok && (
+          <a href={`${base}/boker/${kjeldebok.id}/`} class="kjelde-link">
+            Frå {kjeldebok.data.namn}
+          </a>
+        )
+      }
       <TagList tags={recipe.data.tags} />
     </header>
 
@@ -112,6 +125,18 @@ const thumbUrl = hasThumb ? `${base}/skannar/thumb/${fileName}` : scanUrl;
   .recipe-header h1 {
     font-size: 2.5rem;
     margin-bottom: 0.75rem;
+    color: var(--color-accent);
+  }
+
+  .kjelde-link {
+    display: inline-block;
+    font-family: var(--font-handwritten);
+    font-size: 1.15rem;
+    color: var(--color-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .kjelde-link:hover {
     color: var(--color-accent);
   }
 

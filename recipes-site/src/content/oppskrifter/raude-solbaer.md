@@ -3,6 +3,7 @@ tittel: "Raude solbær"
 tags: ["solbær", "raude solbær", "syltetøy", "sukker", "sitronsaft", "konservering", "bær"]
 kategori: "Sylting og konservering"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/raude-solbaer.jpg"
 ---
 

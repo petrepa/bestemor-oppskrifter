@@ -3,6 +3,7 @@ tittel: "Kaffelefse"
 tags: ["kaffelefse", "lefse", "baking", "mjol", "margarin", "sukker", "hveitemjol"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/kaffelefse.jpg"
 ---
 

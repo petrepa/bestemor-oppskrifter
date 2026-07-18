@@ -3,6 +3,7 @@ tittel: "Nøttekake med eggedosis"
 tags: ["nøttekake", "eggedosis", "kake", "mandlar", "nøtter", "dessert", "sherry"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/nottekake-med-eggedosis.jpg"
 ---
 

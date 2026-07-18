@@ -3,6 +3,7 @@ tittel: "Banankake"
 tags: ["banankake", "banan", "kake", "baking", "sukker", "mjol"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/banankake.jpg"
 ---
 

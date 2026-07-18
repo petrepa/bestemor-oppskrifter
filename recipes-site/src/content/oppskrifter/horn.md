@@ -3,6 +3,7 @@ tittel: "Horn"
 tags: ["horn", "kveitemjol", "gjær", "baking", "brødraut", "sukker", "egg"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/horn.jpg"
 ---
 

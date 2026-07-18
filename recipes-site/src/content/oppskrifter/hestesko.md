@@ -3,6 +3,7 @@ tittel: "Hestesko"
 tags: ["hestesko", "kjeks", "småkaker", "sirup", "kardemomme", "kanel", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/hestesko.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Sitronfromasj og wienerbrød"
 tags: ["sitronfromasj", "fromasj", "dessert", "gelatin", "sitron", "wienerbrød", "baking", "egg"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sitronfromasj-og-wienerbrod.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Daim iskake"
 tags: ["daim", "iskake", "is", "dessert", "fløyte", "eggeplommer", "kaffi"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/daim-iskake.jpg"
 ---
 

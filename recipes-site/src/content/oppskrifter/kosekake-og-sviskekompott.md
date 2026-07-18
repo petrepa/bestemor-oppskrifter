@@ -3,6 +3,7 @@ tittel: "Kosekake og sviskekompott"
 tags: ["kosekake", "sviskekompott", "sjokolade", "gelatin", "egg", "fløyte", "dessert", "kake"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/kosekake-og-sviskekompott.jpg"
 ---
 

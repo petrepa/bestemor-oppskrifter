@@ -3,6 +3,7 @@ tittel: "Konfektkake og sukkerbrød"
 tags: ["konfektkake", "sjokolade", "sukkerbrød", "kake", "valnøtter", "appelsin", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/konfektkake-og-sukkerbrod.jpg"
 ---
 

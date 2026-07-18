@@ -3,6 +3,7 @@ tittel: "Sjokoladekake (Nina)"
 tags: ["sjokoladekake", "kake", "kakao", "glasur", "baking", "freia kakepynt", "kaffi"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sjokoladekake-nina.jpg"
 ---
 

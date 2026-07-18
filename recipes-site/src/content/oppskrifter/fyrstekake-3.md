@@ -3,6 +3,7 @@ tittel: "Fyrstekake"
 tags: ["fyrstekake", "mandel", "margarin", "sukker", "kake", "baking", "potetmjol"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/fyrstekake-3.jpg"
 ---
 

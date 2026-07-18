@@ -3,6 +3,7 @@ tittel: "Tortellini med gorgonzolasaus"
 tags: ["tortellini", "pasta", "gorgonzola", "saus", "fløyte", "ost"]
 kategori: "Middag"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/tortellini-med-gorgonzolasaus.jpg"
 ---
 

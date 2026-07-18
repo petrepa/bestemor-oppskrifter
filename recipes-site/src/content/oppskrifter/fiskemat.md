@@ -3,6 +3,7 @@ tittel: "Fiskemat"
 tags: ["fiskemat", "fiskefarse", "fisk", "hyse", "potetmjøl", "muskat"]
 kategori: "Fisk og sjømat"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/fiskemat.jpg"
 ---
 

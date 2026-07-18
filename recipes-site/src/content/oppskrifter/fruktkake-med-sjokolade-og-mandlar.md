@@ -3,6 +3,7 @@ tittel: "Fruktkake med sjokolade og mandlar"
 tags: ["fruktkake", "sjokolade", "mandlar", "sitron", "kake", "baking", "margarin"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/fruktkake-med-sjokolade-og-mandlar.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Taffillefse"
 tags: ["lefse", "taffillefse", "sukker", "mjol", "smør", "baking", "potet", "tradisjonell"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/taffillefse.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Rundstykke og kveitebrød"
 tags: ["rundstykke", "kveitebrød", "brød", "baking", "gjærbakst", "mjøl", "margarin"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/rundstykke-og-kveitebrod.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Kokos-draumen"
 tags: ["kokos", "kake", "sjokolade", "kakao", "glasur", "baking", "kokosdraum"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/kokos-draumen.jpg"
 ---
 

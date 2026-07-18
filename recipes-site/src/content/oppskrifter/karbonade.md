@@ -3,6 +3,7 @@ tittel: "Karbonade"
 tags: ["karbonade", "kjøtdeig", "potetmjøl", "kveitemjøl", "egg", "lauk", "farse"]
 kategori: "Middag"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/karbonade.jpg"
 ---
 

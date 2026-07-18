@@ -3,6 +3,7 @@ tittel: "Cola kake"
 tags: ["cola kake", "kake", "sirup", "natron", "vaniljesukker", "baking", "sukker", "smor"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/cola-kake.jpg"
 ---
 

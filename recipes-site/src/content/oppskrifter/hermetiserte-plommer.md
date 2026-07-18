@@ -3,6 +3,7 @@ tittel: "Hermetiserte plommer"
 tags: ["plommer", "hermetikk", "sukkerlake", "konservering", "sylting", "frukt"]
 kategori: "Sylting og konservering"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/hermetiserte-plommer.jpg"
 ---
 

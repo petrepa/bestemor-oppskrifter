@@ -3,6 +3,7 @@ tittel: "Sylta raudbeter"
 tags: ["raudbeter", "rødbeter", "sylting", "lake", "eddik", "konservering", "syltebeter"]
 kategori: "Sylting og konservering"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sylta-raudbeter.jpg"
 ---
 

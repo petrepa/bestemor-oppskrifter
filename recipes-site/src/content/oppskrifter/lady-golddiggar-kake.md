@@ -3,6 +3,7 @@ tittel: "Lady Golddiggar-kake"
 tags: ["kake", "sjokolade", "egg", "sukker", "sitron", "baking", "formkake"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/lady-golddiggar-kake.jpg"
 ---
 

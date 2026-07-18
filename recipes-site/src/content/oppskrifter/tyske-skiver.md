@@ -3,6 +3,7 @@ tittel: "Tyske skiver"
 tags: ["tyske skiver", "smør", "melis", "mjøl", "vaniljesukker", "bakepulver", "kaker", "fjernsynskaker"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/tyske-skiver.jpg"
 ---
 

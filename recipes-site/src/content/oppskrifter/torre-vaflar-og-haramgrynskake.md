@@ -3,6 +3,7 @@ tittel: "Tørre vaflar og haramgrynskake"
 tags: ["vafler", "haramgryn", "kavring", "kanel", "sukker", "hjortesalt", "baking", "kake"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/torre-vaflar-og-haramgrynskake.jpg"
 ---
 

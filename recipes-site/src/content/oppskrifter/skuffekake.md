@@ -3,6 +3,7 @@ tittel: "Skuffekake"
 tags: ["skuffekake", "kake", "mandel", "nøtter", "baking", "mandeldråpar", "melis"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/skuffekake.jpg"
 ---
 

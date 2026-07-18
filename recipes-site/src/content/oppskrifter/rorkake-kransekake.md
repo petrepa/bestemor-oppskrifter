@@ -3,6 +3,7 @@ tittel: "Rørkake (Kransekake)"
 tags: ["rørkake", "kransekake", "mandlar", "marengs", "eggekvite", "kake", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/rorkake-kransekake.jpg"
 ---
 

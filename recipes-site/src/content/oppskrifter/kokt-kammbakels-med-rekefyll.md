@@ -3,6 +3,7 @@ tittel: "Kokt kammbakels med rekefyll"
 tags: ["reker", "rekefyll", "majones", "sitron", "fiskefilet", "forrett", "sjømat"]
 kategori: "Fisk og sjømat"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/kokt-kammbakels-med-rekefyll.jpg"
 ---
 

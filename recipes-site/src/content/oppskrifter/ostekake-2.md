@@ -3,6 +3,7 @@ tittel: "Ostekake"
 tags: ["ostekake", "kremost", "havrekjeks", "valnøtter", "sitron", "vaniljestang", "rømme", "cheesecake"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/ostekake-2.jpg"
 ---
 

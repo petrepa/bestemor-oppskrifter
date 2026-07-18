@@ -3,6 +3,7 @@ tittel: "Gelatinglasur og fyll med syltetøy"
 tags: ["glasur", "fyll", "syltetøy", "appelsin", "gelatin", "kake", "sjokolade", "appelsinsaft"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/gelatinglasur-og-fyll-med-syltetoy.jpg"
 ---
 

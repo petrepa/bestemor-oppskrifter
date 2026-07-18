@@ -3,6 +3,7 @@ tittel: "Eplekake med rømme"
 tags: ["eplekake", "eple", "rømme", "kake", "baking", "dessert", "vaniljesukker"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/eplekake-med-romme.jpg"
 ---
 

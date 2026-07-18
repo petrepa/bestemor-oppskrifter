@@ -3,6 +3,7 @@ tittel: "Potetsalat og karamellpudding"
 tags: ["potetsalat", "potet", "karamellpudding", "majones", "rømme", "dessert", "jul", "egg"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/potetsalat-og-karamellpudding.jpg"
 ---
 

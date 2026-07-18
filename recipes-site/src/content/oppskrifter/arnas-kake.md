@@ -3,6 +3,7 @@ tittel: "Arnas kake"
 tags: ["kake", "sjokolade", "appelsin", "glasur", "margarin", "bakverk", "formkake"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/arnas-kake.jpg"
 ---
 

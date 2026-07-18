@@ -3,6 +3,7 @@ tittel: "Sennepssaus (Sost)"
 tags: ["saus", "sennep", "eddik", "egg", "sukker", "tilsett", "krydder"]
 kategori: "Sylting og konservering"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sennepssaus-sost.jpg"
 ---
 

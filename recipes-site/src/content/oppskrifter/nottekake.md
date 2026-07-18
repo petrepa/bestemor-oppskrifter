@@ -3,6 +3,7 @@ tittel: "Nøttekake"
 tags: ["nøttekake", "nøtter", "margarin", "sukker", "mandel", "baking", "kake"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/nottekake.jpg"
 ---
 

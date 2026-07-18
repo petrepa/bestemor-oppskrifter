@@ -3,6 +3,7 @@ tittel: "Snickerskake"
 tags: ["snickerskake", "peanøtter", "ritz", "sjokolade", "kake", "glasur", "eggekvite"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/snickerskake.jpg"
 ---
 

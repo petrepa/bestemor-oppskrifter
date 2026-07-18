@@ -3,6 +3,7 @@ tittel: "Ostekake"
 tags: ["ostekake", "kjeks", "digestive", "kremost", "sitron", "appelsin", "dessert", "kake"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/ostekake.jpg"
 ---
 

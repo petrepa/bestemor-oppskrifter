@@ -3,6 +3,7 @@ tittel: "Mandelflak"
 tags: ["mandelflak", "mandler", "kveitemjol", "flote", "smør", "sukker", "kaker"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/mandelflak.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Kake med sjokoladefyll"
 tags: ["kake", "sjokolade", "kakaosukker", "margarin", "kaffi", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/kake-med-sjokoladefyll.jpg"
 ---
 

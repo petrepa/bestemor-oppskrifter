@@ -3,6 +3,7 @@ tittel: "Aniskringler"
 tags: ["aniskringler", "anis", "kringle", "kardemomme", "gjærbakst", "baking", "kveitemjøl"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/aniskringler.jpg"
 ---
 

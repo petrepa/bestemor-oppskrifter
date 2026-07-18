@@ -3,6 +3,7 @@ tittel: "Festrull med banan og sjokolade"
 tags: ["festrull", "rullekake", "sjokolade", "banan", "eggedosis", "dessert", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/festrull-med-banan-og-sjokolade.jpg"
 ---
 

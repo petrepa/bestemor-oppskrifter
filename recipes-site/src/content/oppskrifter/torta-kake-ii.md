@@ -3,6 +3,7 @@ tittel: "Torta kake II"
 tags: ["torte", "kake", "mandel", "fyll", "hvitevin", "baking", "fest"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/torta-kake-ii.jpg"
 ---
 

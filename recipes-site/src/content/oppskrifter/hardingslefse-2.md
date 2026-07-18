@@ -3,6 +3,7 @@ tittel: "Hardingslefse"
 tags: ["lefse", "hardingslefse", "kveitemjol", "smor", "sukker", "baking", "potet"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/hardingslefse-2.jpg"
 ---
 

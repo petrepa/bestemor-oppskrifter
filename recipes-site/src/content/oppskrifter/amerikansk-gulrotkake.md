@@ -3,6 +3,7 @@ tittel: "Amerikansk gulrotkake"
 tags: ["gulrotkake", "gulrot", "valnøtter", "kanel", "kake", "glasur", "philadelphiaost", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/amerikansk-gulrotkake.jpg"
 ---
 

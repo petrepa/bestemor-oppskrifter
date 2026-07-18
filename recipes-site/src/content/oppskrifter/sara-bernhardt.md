@@ -3,6 +3,7 @@ tittel: "Sara Bernhardt"
 tags: ["sara bernhardt", "mandler", "kaker", "sjokolade", "smørkrem", "eggekvite", "dessert"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sara-bernhardt.jpg"
 ---
 

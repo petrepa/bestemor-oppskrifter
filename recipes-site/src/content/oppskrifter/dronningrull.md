@@ -3,6 +3,7 @@ tittel: "Dronningrull"
 tags: ["dronningrull", "rullekake", "potetmjol", "sjokolade", "banan", "kremrull", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/dronningrull.jpg"
 ---
 

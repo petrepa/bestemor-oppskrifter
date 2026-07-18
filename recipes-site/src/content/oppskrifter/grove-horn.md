@@ -3,6 +3,7 @@ tittel: "Grove horn"
 tags: ["grove horn", "horn", "gjærbakst", "grovbrød", "havregryn", "baking", "rundstykker"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/grove-horn.jpg"
 ---
 
