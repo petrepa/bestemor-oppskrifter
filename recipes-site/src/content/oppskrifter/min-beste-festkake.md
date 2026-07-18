@@ -3,6 +3,7 @@ tittel: "Min beste festkake"
 tags: ["festkake", "sjokoladekake", "karamellsaus", "aprikossylte", "fløyte", "kake", "bløtkake", "kaffi"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/min-beste-festkake.jpg"
 ---
 

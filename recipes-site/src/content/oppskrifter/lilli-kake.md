@@ -3,6 +3,7 @@ tittel: "Lilli-kake"
 tags: ["kake", "lillikake", "smoerbaka", "kanel", "kokosmasse", "fyll", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/lilli-kake.jpg"
 ---
 

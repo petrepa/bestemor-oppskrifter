@@ -3,6 +3,7 @@ tittel: "Rund Firkløver-kake"
 tags: ["kake", "firkløver", "mandlar", "sjokolade", "banan", "fløyte", "dessertkake"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/rund-firklover-kake.jpg"
 ---
 

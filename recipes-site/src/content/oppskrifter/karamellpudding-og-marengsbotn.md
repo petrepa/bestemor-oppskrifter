@@ -3,6 +3,7 @@ tittel: "Karamellpudding og marengsbotn"
 tags: ["karamellpudding", "marengs", "dessert", "egg", "valnøtter", "fløte", "kiwi", "jordbær"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/karamellpudding-og-marengsbotn.jpg"
 ---
 

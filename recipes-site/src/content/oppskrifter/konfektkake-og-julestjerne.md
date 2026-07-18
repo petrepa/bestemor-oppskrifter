@@ -3,6 +3,7 @@ tittel: "Konfektkake og julestjerne"
 tags: ["konfektkake", "julestjerne", "kake", "mandlar", "kardemomme", "jul", "baking", "margarin"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/konfektkake-og-julestjerne.jpg"
 ---
 

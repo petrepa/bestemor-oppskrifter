@@ -3,6 +3,7 @@ tittel: "Muslirundstykke"
 tags: ["rundstykke", "musli", "brod", "havregryn", "rosiner", "hasselnotter", "aprikos", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/muslirundstykke.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Hardingslefse"
 tags: ["hardingslefse", "lefse", "kveitemjøl", "gjær", "baking", "tradisjonell"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/hardingslefse.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Sunnmørsbrød og eplekake"
 tags: ["sunnmørsbrød", "brød", "kveitemjøl", "rugmjøl", "havregryn", "eplekake", "eple", "baking", "gjærbakst"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sunnmorsbrod-og-eplekake.jpg"
 ---
 

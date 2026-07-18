@@ -3,6 +3,7 @@ tittel: "Gunhilds makronar og vannkringle"
 tags: ["makronar", "kokosmakronar", "kokos", "egg", "vannkringle", "kringle", "baking", "gjærbakst"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/gunhilds-makronar-og-vannkringle.jpg"
 ---
 

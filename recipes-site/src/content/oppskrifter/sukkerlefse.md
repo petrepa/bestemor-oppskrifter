@@ -3,6 +3,7 @@ tittel: "Sukkerlefse"
 tags: ["lefse", "sukkerlefse", "potet", "mjol", "baking", "tradisjonsmat", "flatbraud"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sukkerlefse.jpg"
 ---
 

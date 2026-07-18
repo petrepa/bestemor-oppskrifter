@@ -3,6 +3,7 @@ tittel: "Salat med krabbefiske og agurk"
 tags: ["salat", "krabbe", "fiskepudding", "agurk", "majones", "sitron", "sylteagurk"]
 kategori: "Fisk og sjømat"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/salat-med-krabbefiske-og-agurk.jpg"
 ---
 

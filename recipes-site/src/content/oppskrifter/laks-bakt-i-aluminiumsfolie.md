@@ -3,6 +3,7 @@ tittel: "Laks bakt i aluminiumsfolie"
 tags: ["laks", "folie", "ovnsbakt", "fisk", "dill", "persille", "purre"]
 kategori: "Fisk og sjømat"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/laks-bakt-i-aluminiumsfolie.jpg"
 ---
 

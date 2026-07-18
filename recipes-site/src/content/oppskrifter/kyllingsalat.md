@@ -3,6 +3,7 @@ tittel: "Kyllingsalat"
 tags: ["kyllingsalat", "kylling", "ris", "ananas", "druer", "dressing", "salat", "curry"]
 kategori: "Middag"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/kyllingsalat.jpg"
 ---
 

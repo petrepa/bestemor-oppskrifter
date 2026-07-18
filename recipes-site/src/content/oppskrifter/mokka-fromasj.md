@@ -3,6 +3,7 @@ tittel: "Mokka fromasj"
 tags: ["mokka", "fromasj", "kaffi", "gelatin", "dessert", "krem", "egg", "sjokolade"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/mokka-fromasj.jpg"
 ---
 

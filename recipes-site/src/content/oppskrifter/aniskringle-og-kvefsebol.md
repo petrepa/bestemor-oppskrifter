@@ -3,6 +3,7 @@ tittel: "Aniskringle og kvefsebol"
 tags: ["aniskringle", "kringle", "anis", "kardemomme", "kvefsebol", "mandlar", "sjokolade", "baking", "pikekyss"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/aniskringle-og-kvefsebol.jpg"
 ---
 

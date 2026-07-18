@@ -3,6 +3,7 @@ tittel: "Pizza"
 tags: ["pizza", "kveitemjol", "gjær", "kjøtdeig", "tomatpuré", "gaudaost", "fyll", "baking"]
 kategori: "Middag"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/pizza.jpg"
 ---
 

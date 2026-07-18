@@ -3,6 +3,7 @@ tittel: "Amerikanske pannekaker"
 tags: ["pannekaker", "vaniljesukker", "egg", "fløte", "dessert", "amerikansk"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/amerikanske-pannekaker.jpg"
 ---
 

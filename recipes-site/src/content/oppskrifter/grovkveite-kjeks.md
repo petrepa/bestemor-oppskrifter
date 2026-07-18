@@ -3,6 +3,7 @@ tittel: "Grovkveite-kjeks"
 tags: ["grovkveite", "kjeks", "nøtter", "surmjølk", "hjortesalt", "baking", "smult"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/grovkveite-kjeks.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Nordlandslefse"
 tags: ["lefse", "nordlandslefse", "sukker", "sirup", "surmjolk", "mjol", "baking", "brod"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/nordlandslefse.jpg"
 ---
 

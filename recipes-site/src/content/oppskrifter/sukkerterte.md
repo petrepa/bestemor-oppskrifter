@@ -3,6 +3,7 @@ tittel: "Sukkerterte"
 tags: ["sukkerterte", "terte", "kake", "egg", "mjol", "baking", "dessert", "fyll"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sukkerterte.jpg"
 ---
 

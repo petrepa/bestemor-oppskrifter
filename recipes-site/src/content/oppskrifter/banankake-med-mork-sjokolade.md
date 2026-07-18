@@ -3,6 +3,7 @@ tittel: "Banankake med mørk sjokolade"
 tags: ["banankake", "banan", "mørk sjokolade", "yoghurt", "kake", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/banankake-med-mork-sjokolade.jpg"
 ---
 

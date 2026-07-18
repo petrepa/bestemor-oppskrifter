@@ -3,6 +3,7 @@ tittel: "Svele"
 tags: ["svele", "sveler", "kulturmjolk", "kveitemjol", "egg", "baking", "steinar sine sveler"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/svele.jpg"
 ---
 

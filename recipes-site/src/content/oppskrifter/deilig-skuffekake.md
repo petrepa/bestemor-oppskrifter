@@ -3,6 +3,7 @@ tittel: "Deilig skuffekake"
 tags: ["skuffekake", "sjokoladekake", "kake", "egg", "kveitemjol", "sukker", "glasur", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/deilig-skuffekake.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Sjokoladedraum"
 tags: ["sjokoladedraum", "sjokolade", "kake", "fyll", "glasur", "baking", "dessert"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sjokoladedraum.jpg"
 ---
 

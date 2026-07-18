@@ -3,6 +3,7 @@ tittel: "Fruktsalat"
 tags: ["fruktsalat", "frukt", "banan", "eple", "appelsin", "ananas", "majones", "dessert"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/fruktsalat.jpg"
 ---
 

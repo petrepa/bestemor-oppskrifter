@@ -3,6 +3,7 @@ tittel: "Julekake"
 tags: ["julekake", "kake", "kveitemjol", "smør", "sukker", "baking", "bakverk"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/julekake.jpg"
 ---
 

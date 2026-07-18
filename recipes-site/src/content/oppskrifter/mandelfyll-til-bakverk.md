@@ -3,6 +3,7 @@ tittel: "Mandelfyll til bakverk"
 tags: ["mandelfyll", "mandler", "melis", "eggekviter", "fyll", "baking", "kaker"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/mandelfyll-til-bakverk.jpg"
 ---
 

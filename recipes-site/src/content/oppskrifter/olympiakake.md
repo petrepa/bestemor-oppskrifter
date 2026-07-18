@@ -3,6 +3,7 @@ tittel: "Olympiakake"
 tags: ["olympiakake", "kake", "mandlar", "margarin", "sukker", "vaniljesukker", "fyll", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/olympiakake.jpg"
 ---
 

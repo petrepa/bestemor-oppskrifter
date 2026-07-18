@@ -3,6 +3,7 @@ tittel: "Astrids kake og nøttekokoskake"
 tags: ["kake", "nøtter", "kokos", "hasselnøtter", "baking", "dessert", "eggedosis"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/astrids-kake-og-nottekokoskake.jpg"
 ---
 

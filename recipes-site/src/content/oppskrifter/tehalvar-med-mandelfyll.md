@@ -3,6 +3,7 @@ tittel: "Tehalvar med mandelfyll"
 tags: ["tehalvar", "kake", "mandel", "smør", "sukker", "vanilje", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/tehalvar-med-mandelfyll.jpg"
 ---
 

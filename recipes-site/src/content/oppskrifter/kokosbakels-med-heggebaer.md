@@ -3,6 +3,7 @@ tittel: "Kokosbakels med heggebær"
 tags: ["kokos", "heggebær", "bakels", "kake", "baking", "sukker", "fløyte"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/kokosbakels-med-heggebaer.jpg"
 ---
 

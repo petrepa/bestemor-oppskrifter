@@ -3,6 +3,7 @@ tittel: "Juliana-terte (nøttekake)"
 tags: ["nøttekake", "terte", "juliana", "nøtter", "kake", "baking", "dessert"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/juliana-terte-nottekake.jpg"
 ---
 

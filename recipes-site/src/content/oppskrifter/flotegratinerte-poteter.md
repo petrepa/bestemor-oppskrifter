@@ -3,6 +3,7 @@ tittel: "Fløtegratinerte poteter"
 tags: ["flotegratinerte poteter", "potet", "flote", "gratineng", "lauk", "kvitlauk", "tilbehor"]
 kategori: "Middag"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/flotegratinerte-poteter.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Skinke- og makaronisalat og potetsalat"
 tags: ["skinkesalat", "makaronisalat", "potetsalat", "makaroni", "skinke", "majones", "eple", "salat"]
 kategori: "Middag"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/skinke-og-makaronisalat-og-potetsalat.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Prinsessekake"
 tags: ["prinsessekake", "kake", "mandel", "vaniljekrem", "melis", "baking"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/prinsessekake.jpg"
 ---
 

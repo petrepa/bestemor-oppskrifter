@@ -3,6 +3,7 @@ tittel: "Sukkerbrød med bakepulver"
 tags: ["kake", "sukkerbrød", "mjøl", "egg", "bakepulver", "baking", "form"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sukkerbrod-med-bakepulver.jpg"
 ---
 

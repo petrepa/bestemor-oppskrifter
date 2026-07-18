@@ -3,6 +3,7 @@ tittel: "Hennes kongelege kakhet (marengs med aprikos)"
 tags: ["marengs", "aprikos", "egg", "mandel", "sjokolade", "dessert", "kake", "krem"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/hennes-kongelege-kakhet-marengs-med-aprikos.jpg"
 ---
 

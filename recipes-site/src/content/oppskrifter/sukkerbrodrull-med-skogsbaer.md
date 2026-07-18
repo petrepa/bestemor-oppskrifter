@@ -3,6 +3,7 @@ tittel: "Sukkerbrødrull med skogsbær"
 tags: ["sviskerull", "skogsbær", "sukkerbrød", "mandlar", "vaniljesaus", "krem", "rullekake", "pastasalat"]
 kategori: "Dessert"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sukkerbrodrull-med-skogsbaer.jpg"
 ---
 

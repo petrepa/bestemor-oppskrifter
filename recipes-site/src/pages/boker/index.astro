@@ -1,0 +1,110 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const boker = await getCollection('boker');
+const oppskrifter = await getCollection('oppskrifter');
+const base = import.meta.env.BASE_URL;
+
+const teljing = new Map<string, number>();
+for (const recipe of oppskrifter) {
+  if (recipe.data.kjelde) {
+    teljing.set(recipe.data.kjelde, (teljing.get(recipe.data.kjelde) || 0) + 1);
+  }
+}
+
+const sorterte = boker.sort((a, b) => a.data.namn.localeCompare(b.data.namn, 'nn'));
+---
+
+<BaseLayout title="Bøker">
+  <h1>Bøker</h1>
+  <p class="page-intro">Dei handskrivne oppskriftsbøkene som skannane i arkivet kjem frå.</p>
+
+  <div class="bok-grid">
+    {
+      sorterte.map((bok) => (
+        <a href={`${base}/boker/${bok.id}/`} class="bok-card">
+          <div class="bok-cover">
+            <img src={`${base}/${bok.data.bilete}`} alt={`Omslaget til ${bok.data.namn}`} loading="lazy" decoding="async" />
+          </div>
+          <div class="bok-info">
+            <h2>{bok.data.namn}</h2>
+            <span class="count">
+              {teljing.get(bok.id) || 0} {(teljing.get(bok.id) || 0) === 1 ? 'oppskrift' : 'oppskrifter'}
+            </span>
+          </div>
+        </a>
+      ))
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  h1 {
+    margin-bottom: 0.25rem;
+  }
+
+  .page-intro {
+    color: var(--color-muted);
+    margin-bottom: 2rem;
+  }
+
+  .bok-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .bok-card {
+    display: block;
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-card-border);
+    border-radius: 12px;
+    overflow: hidden;
+    color: var(--color-text);
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(61, 43, 31, 0.06);
+  }
+
+  .bok-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(61, 43, 31, 0.1);
+    color: var(--color-text);
+  }
+
+  .bok-cover {
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-card-border);
+  }
+
+  .bok-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+
+  .bok-card:hover .bok-cover img {
+    transform: scale(1.03);
+  }
+
+  .bok-info {
+    padding: 1rem 1.25rem 1.25rem;
+    text-align: center;
+  }
+
+  .bok-info h2 {
+    font-size: 1.3rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .count {
+    font-family: var(--font-handwritten);
+    color: var(--color-muted);
+    font-size: 1.1rem;
+  }
+</style>

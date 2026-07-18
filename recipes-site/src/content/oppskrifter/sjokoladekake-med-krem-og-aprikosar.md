@@ -3,6 +3,7 @@ tittel: "Sjokoladekake med krem og aprikosar"
 tags: ["sjokoladekake", "aprikos", "krem", "valnøtter", "kake", "dessert", "fløte"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sjokoladekake-med-krem-og-aprikosar.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Sandefjordsmør og koking av fårerull"
 tags: ["sandefjordsmør", "smør", "fløyte", "maisenna", "fårerull", "saus", "kruspersille", "bakerovn"]
 kategori: "Middag"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sandefjordsmor-og-koking-av-farerull.jpg"
 ---
 

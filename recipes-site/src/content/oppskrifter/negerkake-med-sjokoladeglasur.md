@@ -3,6 +3,7 @@ tittel: "Negerkake med sjokoladeglasur"
 tags: ["negerkake", "sjokoladekake", "glasur", "sjokolade", "kake", "baking", "appelsin"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/negerkake-med-sjokoladeglasur.jpg"
 ---
 

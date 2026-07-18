@@ -3,6 +3,7 @@ tittel: "Brokkolisalat"
 tags: ["brokkolisalat", "brokkoli", "bacon", "raudlauk", "rosiner", "solsikkefrø", "dressing", "salat"]
 kategori: "Middag"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/brokkolisalat.jpg"
 ---
 

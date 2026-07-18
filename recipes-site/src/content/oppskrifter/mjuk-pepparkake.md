@@ -3,6 +3,7 @@ tittel: "Mjuk pepparkake"
 tags: ["pepparkake", "mjuk pepparkake", "baking", "sukker", "smør", "kake", "krydder"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/mjuk-pepparkake.jpg"
 ---
 

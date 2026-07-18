@@ -3,6 +3,7 @@ tittel: "Ambassadørkake"
 tags: ["ambassadørkake", "kake", "mandel", "sjokolade", "krem", "baking", "fyll"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/ambassadorkake.jpg"
 ---
 

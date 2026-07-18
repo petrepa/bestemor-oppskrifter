@@ -3,6 +3,7 @@ tittel: "Litt vinte wienerbrød"
 tags: ["wienerbrød", "gjærbakst", "kardemomme", "baking", "margarin", "perlesukker"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/litt-vinte-wienerbrod.jpg"
 ---
 

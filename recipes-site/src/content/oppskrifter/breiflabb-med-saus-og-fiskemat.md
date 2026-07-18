@@ -3,6 +3,7 @@ tittel: "Breiflabb med saus og fiskemat"
 tags: ["breiflabb", "fisk", "fiskemat", "saus", "champignon", "paprika", "fiskekraft"]
 kategori: "Fisk og sjømat"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/breiflabb-med-saus-og-fiskemat.jpg"
 ---
 

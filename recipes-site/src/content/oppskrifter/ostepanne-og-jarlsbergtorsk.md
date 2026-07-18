@@ -3,6 +3,7 @@ tittel: "Ostepanne og Jarlsbergtorsk"
 tags: ["ostepanne", "jarlsberg", "torsk", "ost", "fisk", "paprika", "dill"]
 kategori: "Fisk og sjømat"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/ostepanne-og-jarlsbergtorsk.jpg"
 ---
 

@@ -3,6 +3,7 @@ tittel: "Kringle"
 tags: ["kringle", "gjærbakst", "smør", "sukker", "mandel", "baking", "fyll"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/kringle.jpg"
 ---
 

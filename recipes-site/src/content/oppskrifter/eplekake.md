@@ -3,6 +3,7 @@ tittel: "Eplekake"
 tags: ["eplekake", "eple", "kake", "sukker", "egg", "baking", "dessert"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/eplekake.jpg"
 ---
 

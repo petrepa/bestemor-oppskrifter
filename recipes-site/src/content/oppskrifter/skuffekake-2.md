@@ -3,6 +3,7 @@ tittel: "Skuffekake"
 tags: ["skuffekake", "kake", "mandel", "kveitemjol", "baking", "mandeldråpar", "fyll"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/skuffekake-2.jpg"
 ---
 

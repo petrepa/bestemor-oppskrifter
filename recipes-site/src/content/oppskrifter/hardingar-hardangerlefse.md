@@ -3,6 +3,7 @@ tittel: "Hardingar (Hardangerlefse)"
 tags: ["hardingar", "hardanger", "lefse", "sur mjølk", "kveitekake", "baking", "sviskelapper"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/hardingar-hardangerlefse.jpg"
 ---
 

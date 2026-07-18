@@ -3,6 +3,7 @@ tittel: "Sveler"
 tags: ["sveler", "svele", "pannekaker", "egg", "sukker", "mjol", "baking", "frukost"]
 kategori: "Bakverk"
 dato: 2026-07-17
+kjelde: "groneboka"
 original_skann: "skannar/sveler.jpg"
 ---
 
